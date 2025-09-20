@@ -1,26 +1,69 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: 220 100% 98%;
+    --foreground: 220 50% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 50% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 50% 15%;
+    --primary: 220 90% 56%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 50% 95%;
+    --secondary-foreground: 220 50% 25%;
+    --muted: 220 30% 95%;
+    --muted-foreground: 220 20% 50%;
+    --accent: 220 60% 92%;
+    --accent-foreground: 220 50% 25%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 30% 88%;
+    --input: 220 30% 88%;
+    --ring: 220 90% 56%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 200 70% 50%;
+    --chart-3: 240 70% 50%;
+    --chart-4: 180 70% 50%;
+    --chart-5: 260 70% 50%;
+  }
+
+  .dark {
+    --background: 220 50% 8%;
+    --foreground: 220 20% 90%;
+    --card: 220 50% 10%;
+    --card-foreground: 220 20% 90%;
+    --popover: 220 50% 10%;
+    --popover-foreground: 220 20% 90%;
+    --primary: 220 80% 60%;
+    --primary-foreground: 220 50% 8%;
+    --secondary: 220 30% 15%;
+    --secondary-foreground: 220 20% 85%;
+    --muted: 220 30% 15%;
+    --muted-foreground: 220 20% 65%;
+    --accent: 220 40% 18%;
+    --accent-foreground: 220 20% 85%;
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 220 20% 90%;
+    --border: 220 30% 20%;
+    --input: 220 30% 20%;
+    --ring: 220 80% 60%;
+    --chart-1: 220 70% 60%;
+    --chart-2: 200 70% 60%;
+    --chart-3: 240 70% 60%;
+    --chart-4: 180 70% 60%;
+    --chart-5: 260 70% 60%;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+  
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: system-ui, -apple-system, sans-serif;
+  }
 }
