@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import DashboardLayout from '@/components/layouts/DashboardLayout'
+import CopyButton from '@/components/ui/CopyButton'
 
 interface FormData {
   title: string
@@ -12,7 +13,6 @@ interface FormData {
   purpose: string
   method: string
   expectedResult: string
-  isPublic: boolean
 }
 
 interface ProjectSubject {
@@ -63,8 +63,7 @@ export default function AddInfoPage() {
     subject: '',
     purpose: '',
     method: '',
-    expectedResult: '',
-    isPublic: false
+    expectedResult: ''
   })
   const [subjects, setSubjects] = useState<ProjectSubject[]>([])
   const [wordCount, setWordCount] = useState<WordCount>({
@@ -294,9 +293,12 @@ export default function AddInfoPage() {
 
             {/* Amaç ve Önem */}
             <div>
-              <label htmlFor="purpose" className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
-                Amaç ve Önem * (50-150 kelime)
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label htmlFor="purpose" className="block text-sm font-medium text-gray-900 dark:text-white">
+                  Amaç ve Önem * (50-150 kelime)
+                </label>
+                {formData.purpose && <CopyButton text={formData.purpose} />}
+              </div>
               <textarea
                 id="purpose"
                 name="purpose"
@@ -316,9 +318,12 @@ export default function AddInfoPage() {
 
             {/* Yöntem */}
             <div>
-              <label htmlFor="method" className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
-                Yöntem * (50-150 kelime)
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label htmlFor="method" className="block text-sm font-medium text-gray-900 dark:text-white">
+                  Yöntem * (50-150 kelime)
+                </label>
+                {formData.method && <CopyButton text={formData.method} />}
+              </div>
               <textarea
                 id="method"
                 name="method"
@@ -338,9 +343,12 @@ export default function AddInfoPage() {
 
             {/* Beklenen Sonuç */}
             <div>
-              <label htmlFor="expectedResult" className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
-                Beklenen Sonuç * (50-150 kelime)
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label htmlFor="expectedResult" className="block text-sm font-medium text-gray-900 dark:text-white">
+                  Beklenen Sonuç * (50-150 kelime)
+                </label>
+                {formData.expectedResult && <CopyButton text={formData.expectedResult} />}
+              </div>
               <textarea
                 id="expectedResult"
                 name="expectedResult"
@@ -356,21 +364,6 @@ export default function AddInfoPage() {
                 {wordCount.expectedResult < 50 && ' (En az 50 kelime gerekli)'}
                 {wordCount.expectedResult > 150 && ' (En fazla 150 kelime olmalı)'}
               </div>
-            </div>
-
-            {/* Herkese Açık */}
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="isPublic"
-                name="isPublic"
-                checked={formData.isPublic}
-                onChange={handleChange}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 rounded"
-              />
-              <label htmlFor="isPublic" className="ml-3 text-sm font-medium text-gray-900 dark:text-white">
-                Bu bilgiyi herkese açık yap
-              </label>
             </div>
 
             {error && (

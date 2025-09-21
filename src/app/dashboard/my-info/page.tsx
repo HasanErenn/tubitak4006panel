@@ -3,13 +3,17 @@
 import { useState, useEffect } from 'react'
 import DashboardLayout from '@/components/layouts/DashboardLayout'
 import Link from 'next/link'
+import CopyButton from '@/components/ui/CopyButton'
 
 interface UserInfo {
   id: string
   title: string
-  description?: string
-  content: string
-  category?: string
+  mainArea: string
+  projectType: string
+  subject: string
+  purpose: string
+  method: string
+  expectedResult: string
   isPublic: boolean
   createdAt: string
   updatedAt: string
@@ -17,10 +21,12 @@ interface UserInfo {
 
 interface EditFormData {
   title: string
-  description: string
-  content: string
-  category: string
-  isPublic: boolean
+  mainArea: string
+  projectType: string
+  subject: string
+  purpose: string
+  method: string
+  expectedResult: string
 }
 
 export default function MyInfoPage() {
@@ -30,10 +36,12 @@ export default function MyInfoPage() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editForm, setEditForm] = useState<EditFormData>({
     title: '',
-    description: '',
-    content: '',
-    category: '',
-    isPublic: false
+    mainArea: '',
+    projectType: '',
+    subject: '',
+    purpose: '',
+    method: '',
+    expectedResult: ''
   })
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
 
@@ -61,10 +69,12 @@ export default function MyInfoPage() {
     setEditingId(info.id)
     setEditForm({
       title: info.title,
-      description: info.description || '',
-      content: info.content,
-      category: info.category || '',
-      isPublic: info.isPublic
+      mainArea: info.mainArea,
+      projectType: info.projectType,
+      subject: info.subject,
+      purpose: info.purpose,
+      method: info.method,
+      expectedResult: info.expectedResult
     })
   }
 
@@ -72,10 +82,12 @@ export default function MyInfoPage() {
     setEditingId(null)
     setEditForm({
       title: '',
-      description: '',
-      content: '',
-      category: '',
-      isPublic: false
+      mainArea: '',
+      projectType: '',
+      subject: '',
+      purpose: '',
+      method: '',
+      expectedResult: ''
     })
   }
 
@@ -185,7 +197,7 @@ export default function MyInfoPage() {
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-foreground mb-2">
-                          Başlık
+                          Alt Proje Adı
                         </label>
                         <input
                           type="text"
@@ -198,12 +210,12 @@ export default function MyInfoPage() {
 
                       <div>
                         <label className="block text-sm font-medium text-foreground mb-2">
-                          Açıklama
+                          Ana Alan
                         </label>
                         <input
                           type="text"
-                          name="description"
-                          value={editForm.description}
+                          name="mainArea"
+                          value={editForm.mainArea}
                           onChange={handleEditChange}
                           className="w-full px-3 py-2 border border-gray-200/50 dark:border-gray-700/50 rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                         />
@@ -211,12 +223,12 @@ export default function MyInfoPage() {
 
                       <div>
                         <label className="block text-sm font-medium text-foreground mb-2">
-                          Kategori
+                          Proje Türü
                         </label>
                         <input
                           type="text"
-                          name="category"
-                          value={editForm.category}
+                          name="projectType"
+                          value={editForm.projectType}
                           onChange={handleEditChange}
                           className="w-full px-3 py-2 border border-gray-200/50 dark:border-gray-700/50 rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                         />
@@ -224,28 +236,63 @@ export default function MyInfoPage() {
 
                       <div>
                         <label className="block text-sm font-medium text-foreground mb-2">
-                          İçerik
+                          Konu
                         </label>
+                        <input
+                          type="text"
+                          name="subject"
+                          value={editForm.subject}
+                          onChange={handleEditChange}
+                          className="w-full px-3 py-2 border border-gray-200/50 dark:border-gray-700/50 rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                        />
+                      </div>
+
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <label className="block text-sm font-medium text-foreground">
+                            Amaç ve Önem
+                          </label>
+                          {editForm.purpose && <CopyButton text={editForm.purpose} />}
+                        </div>
                         <textarea
-                          name="content"
-                          value={editForm.content}
+                          name="purpose"
+                          value={editForm.purpose}
                           onChange={handleEditChange}
-                          rows={6}
+                          rows={4}
                           className="w-full px-3 py-2 border border-gray-200/50 dark:border-gray-700/50 rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                         />
                       </div>
 
-                      <div className="flex items-center">
-                        <input
-                          type="checkbox"
-                          name="isPublic"
-                          checked={editForm.isPublic}
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <label className="block text-sm font-medium text-foreground">
+                            Yöntem
+                          </label>
+                          {editForm.method && <CopyButton text={editForm.method} />}
+                        </div>
+                        <textarea
+                          name="method"
+                          value={editForm.method}
                           onChange={handleEditChange}
-                          className="h-4 w-4 text-primary focus:ring-primary border-gray-200/50 dark:border-gray-700/50 rounded"
+                          rows={4}
+                          className="w-full px-3 py-2 border border-gray-200/50 dark:border-gray-700/50 rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                         />
-                        <label className="ml-2 block text-sm text-foreground">
-                          Herkese açık
-                        </label>
+                      </div>
+
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <label className="block text-sm font-medium text-foreground">
+                            Beklenen Sonuç
+                          </label>
+                          {editForm.expectedResult && <CopyButton text={editForm.expectedResult} />}
+                        </div>
+                        <textarea
+                          name="expectedResult"
+                          value={editForm.expectedResult}
+                          onChange={handleEditChange}
+                          rows={4}
+                          className="w-full px-3 py-2 border border-gray-200/50 dark:border-gray-700/50 rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                        />
                       </div>
 
                       <div className="flex justify-end space-x-4">
@@ -273,11 +320,11 @@ export default function MyInfoPage() {
                           <h3 className="text-lg font-semibold text-foreground mb-2">
                             {info.title}
                           </h3>
-                          {info.description && (
-                            <p className="text-muted-foreground mb-2">
-                              {info.description}
-                            </p>
-                          )}
+                          <div className="grid grid-cols-2 gap-4 text-sm text-muted-foreground mb-3">
+                            <div><strong>Ana Alan:</strong> {info.mainArea}</div>
+                            <div><strong>Tür:</strong> {info.projectType}</div>
+                            <div className="col-span-2"><strong>Konu:</strong> {info.subject}</div>
+                          </div>
                         </div>
                         <div className="flex space-x-2">
                           <button
@@ -295,8 +342,34 @@ export default function MyInfoPage() {
                         </div>
                       </div>
 
-                      <div className="prose prose-sm max-w-none text-foreground mb-4">
-                        <div className="whitespace-pre-wrap">{info.content}</div>
+                      <div className="space-y-4 mb-4">
+                        <div>
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="font-medium text-foreground">Amaç ve Önem</h4>
+                            <CopyButton text={info.purpose} />
+                          </div>
+                          <div className="text-sm text-muted-foreground whitespace-pre-wrap bg-muted/30 p-3 rounded">
+                            {info.purpose}
+                          </div>
+                        </div>
+                        <div>
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="font-medium text-foreground">Yöntem</h4>
+                            <CopyButton text={info.method} />
+                          </div>
+                          <div className="text-sm text-muted-foreground whitespace-pre-wrap bg-muted/30 p-3 rounded">
+                            {info.method}
+                          </div>
+                        </div>
+                        <div>
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="font-medium text-foreground">Beklenen Sonuç</h4>
+                            <CopyButton text={info.expectedResult} />
+                          </div>
+                          <div className="text-sm text-muted-foreground whitespace-pre-wrap bg-muted/30 p-3 rounded">
+                            {info.expectedResult}
+                          </div>
+                        </div>
                       </div>
 
                       <div className="flex items-center justify-between text-sm text-muted-foreground">
@@ -307,18 +380,9 @@ export default function MyInfoPage() {
                           <span>
                             Güncelleme: {new Date(info.updatedAt).toLocaleDateString('tr-TR')}
                           </span>
-                          {info.category && (
-                            <span className="px-2 py-1 bg-secondary rounded">
-                              {info.category}
-                            </span>
-                          )}
                         </div>
-                        <span className={`px-2 py-1 rounded text-xs ${
-                          info.isPublic 
-                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
-                            : 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200'
-                        }`}>
-                          {info.isPublic ? 'Herkese Açık' : 'Özel'}
+                        <span className="px-2 py-1 rounded text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                          Sadece Admin'ler görebilir
                         </span>
                       </div>
                     </div>

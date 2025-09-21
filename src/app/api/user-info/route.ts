@@ -12,7 +12,6 @@ const userInfoSchema = z.object({
   purpose: z.string().min(50, 'Amaç en az 50 kelime olmalıdır').max(1500, 'Amaç en fazla 150 kelime olmalıdır'),
   method: z.string().min(50, 'Yöntem en az 50 kelime olmalıdır').max(1500, 'Yöntem en fazla 150 kelime olmalıdır'),
   expectedResult: z.string().min(50, 'Beklenen sonuç en az 50 kelime olmalıdır').max(1500, 'Beklenen sonuç en fazla 150 kelime olmalıdır'),
-  isPublic: z.boolean().default(false),
 })
 
 export async function POST(request: NextRequest) {
@@ -33,6 +32,7 @@ export async function POST(request: NextRequest) {
       data: {
         ...validatedData,
         userId: session.user.id,
+        isPublic: false, // Sadece Admin'ler görebilir
       },
     })
 
