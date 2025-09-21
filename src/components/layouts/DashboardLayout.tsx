@@ -40,22 +40,18 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-accent/20 flex flex-col">
       {/* Header */}
-      <header className="bg-card/80 backdrop-blur-sm border-b border-gray-200/50 dark:border-gray-700/50/50 shadow-sm">
+      <header className="bg-card/80 backdrop-blur-sm border-b border-gray-200/50 dark:border-gray-700/50 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg">
-                  <svg className="w-6 h-6 text-primary-foreground" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
+
                 <div>
                   <h1 className="text-xl font-bold text-foreground">
-                    BilgiSis
+                    TUBİTAK 4006 Proje Yönetim Sistemi
                   </h1>
                   <p className="text-sm text-muted-foreground">
-                    Hoş geldiniz, {session.user.name}
+                    {session.user.name} Hoşgeldiniz
                   </p>
                 </div>
               </div>
@@ -172,7 +168,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto py-8 sm:px-6 lg:px-8 flex-1">
-        <div className="bg-card/40 backdrop-blur-sm rounded-2xl border border-gray-200/50 dark:border-gray-700/50/50 shadow-sm min-h-[calc(100vh-240px)]">
+        <div className="bg-card/40 backdrop-blur-sm rounded-2xl border border-gray-200/50 dark:border-gray-700/50 shadow-sm min-h-[calc(100vh-240px)]">
           {children}
         </div>
       </main>
