@@ -210,6 +210,7 @@ export default function MyInfoPage() {
     setPdfLoading(userInfo.id)
     try {
       const result = await exportToPDF(userInfo, {
+        id: session.user.id,
         name: session.user.name || '',
         email: session.user.email || ''
       })

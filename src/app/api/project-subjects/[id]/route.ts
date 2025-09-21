@@ -5,9 +5,10 @@ import { authOptions } from '@/lib/auth'
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const resolvedParams = await params
     const session = await getServerSession(authOptions)
     
     if (!session?.user || (session.user.role !== 'ADMIN' && session.user.role !== 'IDARECI')) {
@@ -20,7 +21,7 @@ export async function PUT(
     const { name, isActive } = await request.json()
 
     const subject = await prisma.projectSubject.update({
-      where: { id: params.id },
+      where: { id: resolvedParams.id },
       data: {
         ...(name && { name: name.trim() }),
         ...(typeof isActive === 'boolean' && { isActive })
@@ -39,9 +40,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const resolvedParams = await params
     const session = await getServerSession(authOptions)
     
     if (!session?.user || (session.user.role !== 'ADMIN' && session.user.role !== 'IDARECI')) {
@@ -52,7 +54,7 @@ export async function DELETE(
     }
 
     await prisma.projectSubject.delete({
-      where: { id: params.id }
+      where: { id: resolvedParams.id }
     })
 
     return NextResponse.json({ message: 'Konu başarıyla silindi' })

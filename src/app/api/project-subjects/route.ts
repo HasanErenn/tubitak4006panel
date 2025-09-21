@@ -50,8 +50,8 @@ export async function POST(request: NextRequest) {
     })
 
     return NextResponse.json(subject, { status: 201 })
-  } catch (error) {
-    if (error.code === 'P2002') {
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
       return NextResponse.json(
         { error: 'Bu konu adı zaten mevcut' },
         { status: 400 }

@@ -71,7 +71,12 @@ export default function ProfilePage() {
     }
 
     try {
-      const updateData: any = {
+      const updateData: {
+        name: string;
+        email: string;
+        currentPassword?: string;
+        newPassword?: string;
+      } = {
         name: formData.name,
         email: formData.email
       }
@@ -115,8 +120,12 @@ export default function ProfilePage() {
       // Sayfayı yenile (opsiyonel - eğer session update çalışmazsa)
       // window.location.reload()
       
-    } catch (err: any) {
-      setError(err.message || 'Bir hata oluştu')
+    } catch (err: unknown) {
+      if (err && typeof err === 'object' && 'message' in err) {
+        setError((err as Error).message || 'Bir hata oluştu')
+      } else {
+        setError('Bir hata oluştu')
+      }
     } finally {
       setLoading(false)
     }

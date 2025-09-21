@@ -16,9 +16,10 @@ const userInfoUpdateSchema = z.object({
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const resolvedParams = await params
     const session = await getServerSession(authOptions)
     
     if (!session?.user?.id) {
@@ -30,7 +31,7 @@ export async function GET(
 
     const userInfo = await prisma.userInfo.findFirst({
       where: {
-        id: params.id,
+        id: resolvedParams.id,
         userId: session.user.id,
       },
     })
@@ -55,9 +56,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const resolvedParams = await params
     const session = await getServerSession(authOptions)
     
     if (!session?.user?.id) {
@@ -72,7 +74,7 @@ export async function PUT(
 
     const userInfo = await prisma.userInfo.updateMany({
       where: {
-        id: params.id,
+        id: resolvedParams.id,
         userId: session.user.id,
       },
       data: validatedData,
@@ -87,7 +89,7 @@ export async function PUT(
 
     const updatedUserInfo = await prisma.userInfo.findFirst({
       where: {
-        id: params.id,
+        id: resolvedParams.id,
         userId: session.user.id,
       },
     })
@@ -112,9 +114,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const resolvedParams = await params
     const session = await getServerSession(authOptions)
     
     if (!session?.user?.id) {
@@ -126,7 +129,7 @@ export async function DELETE(
 
     const userInfo = await prisma.userInfo.deleteMany({
       where: {
-        id: params.id,
+        id: resolvedParams.id,
         userId: session.user.id,
       },
     })
