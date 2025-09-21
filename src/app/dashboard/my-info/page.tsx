@@ -156,16 +156,16 @@ export default function MyInfoPage() {
       <div className="px-4 py-6 sm:px-0">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Bilgilerim</h1>
+            <h1 className="text-2xl font-bold text-foreground">Alt Projelerim</h1>
             <p className="text-muted-foreground">
-              Kaydettiğiniz bilgileri görüntüleyin ve yönetin
+              Kaydettiğiniz alt projeleri görüntüleyin ve yönetin
             </p>
           </div>
           <Link
             href="/dashboard/add-info"
             className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
           >
-            Yeni Bilgi Ekle
+            Yeni Alt Proje Oluştur
           </Link>
         </div>
 
@@ -178,13 +178,13 @@ export default function MyInfoPage() {
         {userInfos.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-muted-foreground mb-4">
-              Henüz hiç bilgi eklenmemiş
+              Henüz hiç alt proje oluşturulmamış
             </div>
             <Link
               href="/dashboard/add-info"
               className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
             >
-              İlk bilginizi ekleyin
+              İlk alt projenizi oluşturun
             </Link>
           </div>
         ) : (
@@ -317,13 +317,13 @@ export default function MyInfoPage() {
                     <div className="p-6">
                       <div className="flex justify-between items-start mb-4">
                         <div className="flex-1">
-                          <h3 className="text-lg font-semibold text-foreground mb-2">
+                          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 select-text cursor-text">
                             {info.title}
                           </h3>
-                          <div className="grid grid-cols-2 gap-4 text-sm text-muted-foreground mb-3">
-                            <div><strong>Ana Alan:</strong> {info.mainArea}</div>
-                            <div><strong>Tür:</strong> {info.projectType}</div>
-                            <div className="col-span-2"><strong>Konu:</strong> {info.subject}</div>
+                          <div className="grid grid-cols-2 gap-4 text-sm text-muted-foreground mb-3 select-text cursor-text">
+                            <div><strong className="text-gray-900 dark:text-white">Ana Alan:</strong> {info.mainArea}</div>
+                            <div><strong className="text-gray-900 dark:text-white">Tür:</strong> {info.projectType}</div>
+                            <div className="col-span-2"><strong className="text-gray-900 dark:text-white">Konu:</strong> {info.subject}</div>
                           </div>
                         </div>
                         <div className="flex space-x-2">
@@ -345,28 +345,28 @@ export default function MyInfoPage() {
                       <div className="space-y-4 mb-4">
                         <div>
                           <div className="flex items-center justify-between mb-2">
-                            <h4 className="font-medium text-foreground">Amaç ve Önem</h4>
+                            <h4 className="font-bold text-gray-900 dark:text-white select-text cursor-text">Amaç ve Önem</h4>
                             <CopyButton text={info.purpose} />
                           </div>
-                          <div className="text-sm text-muted-foreground whitespace-pre-wrap bg-muted/30 p-3 rounded">
+                          <div className="text-sm text-muted-foreground whitespace-pre-wrap bg-muted/30 p-3 rounded select-text cursor-text">
                             {info.purpose}
                           </div>
                         </div>
                         <div>
                           <div className="flex items-center justify-between mb-2">
-                            <h4 className="font-medium text-foreground">Yöntem</h4>
+                            <h4 className="font-bold text-gray-900 dark:text-white select-text cursor-text">Yöntem</h4>
                             <CopyButton text={info.method} />
                           </div>
-                          <div className="text-sm text-muted-foreground whitespace-pre-wrap bg-muted/30 p-3 rounded">
+                          <div className="text-sm text-muted-foreground whitespace-pre-wrap bg-muted/30 p-3 rounded select-text cursor-text">
                             {info.method}
                           </div>
                         </div>
                         <div>
                           <div className="flex items-center justify-between mb-2">
-                            <h4 className="font-medium text-foreground">Beklenen Sonuç</h4>
+                            <h4 className="font-bold text-gray-900 dark:text-white select-text cursor-text">Beklenen Sonuç</h4>
                             <CopyButton text={info.expectedResult} />
                           </div>
-                          <div className="text-sm text-muted-foreground whitespace-pre-wrap bg-muted/30 p-3 rounded">
+                          <div className="text-sm text-muted-foreground whitespace-pre-wrap bg-muted/30 p-3 rounded select-text cursor-text">
                             {info.expectedResult}
                           </div>
                         </div>
@@ -381,9 +381,6 @@ export default function MyInfoPage() {
                             Güncelleme: {new Date(info.updatedAt).toLocaleDateString('tr-TR')}
                           </span>
                         </div>
-                        <span className="px-2 py-1 rounded text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                          Sadece Admin'ler görebilir
-                        </span>
                       </div>
                     </div>
 

@@ -1,9 +1,10 @@
 import Link from "next/link";
 import ThemeToggle from "@/components/ui/ThemeToggle";
+import Footer from "@/components/layouts/Footer";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent relative overflow-hidden flex flex-col">
       {/* Background Decorations */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/10 rounded-full blur-3xl"></div>
@@ -25,7 +26,7 @@ export default function Home() {
       </header>
 
       {/* Hero Section */}
-      <div className="relative z-10 flex items-center justify-center min-h-[calc(100vh-120px)] px-6">
+      <div className="relative z-10 flex items-center justify-center min-h-[calc(100vh-120px)] px-6 flex-1">
         <div className="max-w-4xl mx-auto text-center">
           {/* Main Content */}
           <div className="mb-12">
@@ -108,6 +109,8 @@ export default function Home() {
           </div>
         </div>
       </div>
+      
+      <Footer />
     </div>
   );
 }
