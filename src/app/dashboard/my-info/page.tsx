@@ -399,7 +399,7 @@ export default function MyInfoPage() {
                                 value={editForm.purpose}
                                 onChange={handleEditChange}
                                 rows={4}
-                                className="w-full px-4 py-3 border border-orange-200 dark:border-orange-800 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-gray-900/50 text-orange-900 dark:text-orange-100 resize-none"
+                                className="w-full px-4 py-3 border border-orange-200 dark:border-orange-800 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-gray-900/50 text-orange-900 dark:text-orange-100 resize-none text-justify"
                               />
                             </div>
                             <div>
@@ -419,7 +419,7 @@ export default function MyInfoPage() {
                                 value={editForm.method}
                                 onChange={handleEditChange}
                                 rows={4}
-                                className="w-full px-4 py-3 border border-orange-200 dark:border-orange-800 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-gray-900/50 text-orange-900 dark:text-orange-100 resize-none"
+                                className="w-full px-4 py-3 border border-orange-200 dark:border-orange-800 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-gray-900/50 text-orange-900 dark:text-orange-100 resize-none text-justify"
                               />
                             </div>
                             <div>
@@ -439,7 +439,7 @@ export default function MyInfoPage() {
                                 value={editForm.expectedResult}
                                 onChange={handleEditChange}
                                 rows={4}
-                                className="w-full px-4 py-3 border border-orange-200 dark:border-orange-800 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-gray-900/50 text-orange-900 dark:text-orange-100 resize-none"
+                                className="w-full px-4 py-3 border border-orange-200 dark:border-orange-800 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white/50 dark:bg-gray-900/50 text-orange-900 dark:text-orange-100 resize-none text-justify"
                               />
                             </div>
                           </div>
@@ -545,15 +545,20 @@ export default function MyInfoPage() {
                         {/* Amaç ve Önem */}
                         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl p-6 border border-blue-200/50 dark:border-blue-800/50">
                           <div className="flex items-center justify-between mb-4">
-                            <h4 className="font-bold text-blue-900 dark:text-blue-100 flex items-center select-text cursor-text">
-                              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                              </svg>
-                              Amaç ve Önem
-                            </h4>
+                            <div className="flex items-center gap-3">
+                              <h4 className="font-bold text-blue-900 dark:text-blue-100 flex items-center select-text cursor-text">
+                                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Amaç ve Önem
+                              </h4>
+                              <span className="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-800 text-blue-700 dark:text-blue-200 rounded-full font-medium">
+                                {countWords(info.purpose)} kelime
+                              </span>
+                            </div>
                             <CopyButton text={info.purpose} />
                           </div>
-                          <div className="text-sm text-blue-800 dark:text-blue-200 whitespace-pre-wrap leading-relaxed">
+                          <div className="text-sm text-blue-800 dark:text-blue-200 whitespace-pre-wrap leading-relaxed text-justify">
                             {info.purpose}
                           </div>
                         </div>
@@ -561,15 +566,20 @@ export default function MyInfoPage() {
                         {/* Yöntem */}
                         <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl p-6 border border-green-200/50 dark:border-green-800/50">
                           <div className="flex items-center justify-between mb-4">
-                            <h4 className="font-bold text-green-900 dark:text-green-100 flex items-center select-text cursor-text">
-                              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                              </svg>
-                              Yöntem
-                            </h4>
+                            <div className="flex items-center gap-3">
+                              <h4 className="font-bold text-green-900 dark:text-green-100 flex items-center select-text cursor-text">
+                                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                                </svg>
+                                Yöntem
+                              </h4>
+                              <span className="text-xs px-2 py-1 bg-green-100 dark:bg-green-800 text-green-700 dark:text-green-200 rounded-full font-medium">
+                                {countWords(info.method)} kelime
+                              </span>
+                            </div>
                             <CopyButton text={info.method} />
                           </div>
-                          <div className="text-sm text-green-800 dark:text-green-200 whitespace-pre-wrap leading-relaxed">
+                          <div className="text-sm text-green-800 dark:text-green-200 whitespace-pre-wrap leading-relaxed text-justify">
                             {info.method}
                           </div>
                         </div>
@@ -577,15 +587,20 @@ export default function MyInfoPage() {
                         {/* Beklenen Sonuç */}
                         <div className="bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20 rounded-xl p-6 border border-purple-200/50 dark:border-purple-800/50">
                           <div className="flex items-center justify-between mb-4">
-                            <h4 className="font-bold text-purple-900 dark:text-purple-100 flex items-center select-text cursor-text">
-                              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                              </svg>
-                              Beklenen Sonuç
-                            </h4>
+                            <div className="flex items-center gap-3">
+                              <h4 className="font-bold text-purple-900 dark:text-purple-100 flex items-center select-text cursor-text">
+                                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                </svg>
+                                Beklenen Sonuç
+                              </h4>
+                              <span className="text-xs px-2 py-1 bg-purple-100 dark:bg-purple-800 text-purple-700 dark:text-purple-200 rounded-full font-medium">
+                                {countWords(info.expectedResult)} kelime
+                              </span>
+                            </div>
                             <CopyButton text={info.expectedResult} />
                           </div>
-                          <div className="text-sm text-purple-800 dark:text-purple-200 whitespace-pre-wrap leading-relaxed">
+                          <div className="text-sm text-purple-800 dark:text-purple-200 whitespace-pre-wrap leading-relaxed text-justify">
                             {info.expectedResult}
                           </div>
                         </div>

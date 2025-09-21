@@ -359,7 +359,7 @@ export default function AddInfoPage() {
                     name="purpose"
                     required
                     rows={5}
-                    className="w-full px-4 py-3 border border-blue-300 dark:border-blue-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-3 focus:ring-blue-500/30 focus:border-blue-500 transition-all resize-none"
+                    className="w-full px-4 py-3 border border-blue-300 dark:border-blue-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-3 focus:ring-blue-500/30 focus:border-blue-500 transition-all resize-none text-justify"
                     placeholder="Alt projenizin amacını ve önemini açıklayın..."
                     value={formData.purpose}
                     onChange={handleChange}
@@ -387,7 +387,7 @@ export default function AddInfoPage() {
                     name="method"
                     required
                     rows={5}
-                    className="w-full px-4 py-3 border border-green-300 dark:border-green-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-3 focus:ring-green-500/30 focus:border-green-500 transition-all resize-none"
+                    className="w-full px-4 py-3 border border-green-300 dark:border-green-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-3 focus:ring-green-500/30 focus:border-green-500 transition-all resize-none text-justify"
                     placeholder="Kullanacağınız yöntemleri açıklayın..."
                     value={formData.method}
                     onChange={handleChange}
@@ -415,7 +415,7 @@ export default function AddInfoPage() {
                     name="expectedResult"
                     required
                     rows={5}
-                    className="w-full px-4 py-3 border border-purple-300 dark:border-purple-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-3 focus:ring-purple-500/30 focus:border-purple-500 transition-all resize-none"
+                    className="w-full px-4 py-3 border border-purple-300 dark:border-purple-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-3 focus:ring-purple-500/30 focus:border-purple-500 transition-all resize-none text-justify"
                     placeholder="Beklediğiniz sonuçları açıklayın..."
                     value={formData.expectedResult}
                     onChange={handleChange}

@@ -497,7 +497,17 @@ export default function AdminPage() {
                         onClick={() => copyToClipboard(selectedProject.purpose, 'Amaç ve Önem')}
                         title="Kopyalamak için tıklayın"
                       >
-                        <p className="text-sm whitespace-pre-wrap text-gray-900 dark:text-white">{selectedProject.purpose}</p>
+                        <p 
+                          className="text-sm text-gray-900 dark:text-white" 
+                          style={{ 
+                            textAlign: 'justify', 
+                            textJustify: 'inter-word',
+                            whiteSpace: 'pre-line',
+                            lineHeight: '1.5'
+                          }}
+                        >
+                          {selectedProject.purpose}
+                        </p>
                       </div>
                     </div>
                     
@@ -515,7 +525,17 @@ export default function AdminPage() {
                         onClick={() => copyToClipboard(selectedProject.method, 'Yöntem')}
                         title="Kopyalamak için tıklayın"
                       >
-                        <p className="text-sm whitespace-pre-wrap text-gray-900 dark:text-white">{selectedProject.method}</p>
+                        <p 
+                          className="text-sm text-gray-900 dark:text-white" 
+                          style={{ 
+                            textAlign: 'justify', 
+                            textJustify: 'inter-word',
+                            whiteSpace: 'pre-line',
+                            lineHeight: '1.5'
+                          }}
+                        >
+                          {selectedProject.method}
+                        </p>
                       </div>
                     </div>
                     
@@ -533,7 +553,17 @@ export default function AdminPage() {
                         onClick={() => copyToClipboard(selectedProject.expectedResult, 'Beklenen Sonuç')}
                         title="Kopyalamak için tıklayın"
                       >
-                        <p className="text-sm whitespace-pre-wrap text-gray-900 dark:text-white">{selectedProject.expectedResult}</p>
+                        <p 
+                          className="text-sm text-gray-900 dark:text-white" 
+                          style={{ 
+                            textAlign: 'justify', 
+                            textJustify: 'inter-word',
+                            whiteSpace: 'pre-line',
+                            lineHeight: '1.5'
+                          }}
+                        >
+                          {selectedProject.expectedResult}
+                        </p>
                       </div>
                     </div>
                   </div>

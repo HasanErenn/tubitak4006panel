@@ -226,6 +226,17 @@ export const exportToPDF = async (userInfo: UserInfo, user: User) => {
 const PDFTemplate: React.FC<{ userInfo: UserInfo; user: User }> = ({ userInfo, user }) => {
   return (
     <div className="bg-white p-8 min-h-screen font-sans text-sm flex flex-col items-center">
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          .pdf-justify-text {
+            text-align: justify !important;
+            text-justify: inter-word !important;
+            hyphens: auto !important;
+            word-spacing: 0.1em !important;
+            line-height: 1.6 !important;
+          }
+        `
+      }} />
       <div className="w-[90%] max-w-4xl">
         {/* Header */}
         <div className="text-center mb-8">
@@ -318,7 +329,7 @@ const PDFTemplate: React.FC<{ userInfo: UserInfo; user: User }> = ({ userInfo, u
                 Amaç ve Önem:
               </td>
               <td className="border border-black p-3">
-                <div className="whitespace-pre-wrap min-h-[100px] leading-relaxed">
+                <div className="whitespace-pre-wrap min-h-[100px] leading-relaxed pdf-justify-text">
                   {userInfo.purpose || 'Belirtilmedi'}
                 </div>
               </td>
@@ -329,7 +340,7 @@ const PDFTemplate: React.FC<{ userInfo: UserInfo; user: User }> = ({ userInfo, u
                 Yöntem:
               </td>
               <td className="border border-black p-3">
-                <div className="whitespace-pre-wrap min-h-[100px] leading-relaxed">
+                <div className="whitespace-pre-wrap min-h-[100px] leading-relaxed pdf-justify-text">
                   {userInfo.method || 'Belirtilmedi'}
                 </div>
               </td>
@@ -340,7 +351,7 @@ const PDFTemplate: React.FC<{ userInfo: UserInfo; user: User }> = ({ userInfo, u
                 Beklenen Sonuç:
               </td>
               <td className="border border-black p-3">
-                <div className="whitespace-pre-wrap min-h-[100px] leading-relaxed">
+                <div className="whitespace-pre-wrap min-h-[100px] leading-relaxed pdf-justify-text">
                   {userInfo.expectedResult || 'Belirtilmedi'}
                 </div>
               </td>
