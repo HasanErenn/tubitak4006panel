@@ -32,6 +32,23 @@ interface EditFormData {
   expectedResult: string
 }
 
+interface WordCount {
+  purpose: number
+  method: number
+  expectedResult: number
+}
+
+function countWords(text: string): number {
+  return text.trim().split(/\s+/).filter(word => word.length > 0).length
+}
+
+function getWordCountStyle(count: number): string {
+  if (count >= 50 && count <= 150) {
+    return 'text-green-600 dark:text-green-400'
+  }
+  return 'text-red-600 dark:text-red-400'
+}
+
 export default function MyInfoPage() {
   const { data: session } = useSession()
   const [userInfos, setUserInfos] = useState<UserInfo[]>([])
@@ -48,11 +65,25 @@ export default function MyInfoPage() {
     method: '',
     expectedResult: ''
   })
+  const [wordCount, setWordCount] = useState<WordCount>({
+    purpose: 0,
+    method: 0,
+    expectedResult: 0
+  })
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
 
   useEffect(() => {
     fetchUserInfos()
   }, [])
+
+  // Kelime sayısını güncelle
+  useEffect(() => {
+    setWordCount({
+      purpose: countWords(editForm.purpose),
+      method: countWords(editForm.method),
+      expectedResult: countWords(editForm.expectedResult)
+    })
+  }, [editForm.purpose, editForm.method, editForm.expectedResult])
 
   const fetchUserInfos = async () => {
     try {
@@ -96,7 +127,43 @@ export default function MyInfoPage() {
     })
   }
 
+  const validateEditForm = (): boolean => {
+    if (!editForm.title.trim()) {
+      setError('Alt proje adı gereklidir')
+      return false
+    }
+    if (!editForm.mainArea) {
+      setError('Alt proje ana alanı seçiniz')
+      return false
+    }
+    if (!editForm.projectType) {
+      setError('Alt proje türü seçiniz')
+      return false
+    }
+    if (!editForm.subject) {
+      setError('Alt proje konusu seçiniz')
+      return false
+    }
+    if (wordCount.purpose < 50 || wordCount.purpose > 150) {
+      setError('Amaç ve Önem bölümü 50-150 kelime arasında olmalıdır')
+      return false
+    }
+    if (wordCount.method < 50 || wordCount.method > 150) {
+      setError('Yöntem bölümü 50-150 kelime arasında olmalıdır')
+      return false
+    }
+    if (wordCount.expectedResult < 50 || wordCount.expectedResult > 150) {
+      setError('Beklenen Sonuç bölümü 50-150 kelime arasında olmalıdır')
+      return false
+    }
+    return true
+  }
+
   const saveEdit = async (id: string) => {
+    if (!validateEditForm()) {
+      return
+    }
+
     try {
       const response = await fetch(`/api/user-info/${id}`, {
         method: 'PUT',
@@ -109,6 +176,7 @@ export default function MyInfoPage() {
       if (response.ok) {
         await fetchUserInfos()
         setEditingId(null)
+        setError('') // Clear any previous errors
       } else {
         const data = await response.json()
         setError(data.error || 'Güncelleme başarısız')
@@ -315,9 +383,14 @@ export default function MyInfoPage() {
                           <div className="grid gap-4">
                             <div>
                               <div className="flex items-center justify-between mb-2">
-                                <label className="block text-sm font-medium text-orange-800 dark:text-orange-200">
-                                  Amaç ve Önem
-                                </label>
+                                <div className="flex items-center gap-2">
+                                  <label className="block text-sm font-medium text-orange-800 dark:text-orange-200">
+                                    Amaç ve Önem
+                                  </label>
+                                  <span className={`text-xs ${getWordCountStyle(wordCount.purpose)}`}>
+                                    ({wordCount.purpose} kelime - 50-150 arası olmalı)
+                                  </span>
+                                </div>
                                 {editForm.purpose && <CopyButton text={editForm.purpose} />}
                               </div>
                               <textarea
@@ -330,9 +403,14 @@ export default function MyInfoPage() {
                             </div>
                             <div>
                               <div className="flex items-center justify-between mb-2">
-                                <label className="block text-sm font-medium text-orange-800 dark:text-orange-200">
-                                  Yöntem
-                                </label>
+                                <div className="flex items-center gap-2">
+                                  <label className="block text-sm font-medium text-orange-800 dark:text-orange-200">
+                                    Yöntem
+                                  </label>
+                                  <span className={`text-xs ${getWordCountStyle(wordCount.method)}`}>
+                                    ({wordCount.method} kelime - 50-150 arası olmalı)
+                                  </span>
+                                </div>
                                 {editForm.method && <CopyButton text={editForm.method} />}
                               </div>
                               <textarea
@@ -345,9 +423,14 @@ export default function MyInfoPage() {
                             </div>
                             <div>
                               <div className="flex items-center justify-between mb-2">
-                                <label className="block text-sm font-medium text-orange-800 dark:text-orange-200">
-                                  Beklenen Sonuç
-                                </label>
+                                <div className="flex items-center gap-2">
+                                  <label className="block text-sm font-medium text-orange-800 dark:text-orange-200">
+                                    Beklenen Sonuç
+                                  </label>
+                                  <span className={`text-xs ${getWordCountStyle(wordCount.expectedResult)}`}>
+                                    ({wordCount.expectedResult} kelime - 50-150 arası olmalı)
+                                  </span>
+                                </div>
                                 {editForm.expectedResult && <CopyButton text={editForm.expectedResult} />}
                               </div>
                               <textarea

@@ -23,13 +23,45 @@ interface UserInfo {
   }
 }
 
+interface User {
+  id: string
+  name: string
+  email: string
+  role: 'USER' | 'ADMIN' | 'IDARECI' | 'OGRETMEN'
+  createdAt: string
+  _count: {
+    userInfos: number
+  }
+}
+
+interface EditUserData {
+  name: string
+  role: 'USER' | 'ADMIN' | 'IDARECI' | 'OGRETMEN'
+}
+
 export default function AdminPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
+  
+  // Tab state
+  const [activeTab, setActiveTab] = useState<'projects' | 'users'>('projects')
+  
+  // Project states
   const [projects, setProjects] = useState<UserInfo[]>([])
+  const [selectedProject, setSelectedProject] = useState<UserInfo | null>(null)
+  
+  // User states
+  const [users, setUsers] = useState<User[]>([])
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editForm, setEditForm] = useState<EditUserData>({
+    name: '',
+    role: 'USER'
+  })
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
+  
+  // Global states
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [selectedProject, setSelectedProject] = useState<UserInfo | null>(null)
 
   useEffect(() => {
     if (status === 'loading') return
@@ -44,10 +76,15 @@ export default function AdminPage() {
       return
     }
 
-    fetchProjects()
-  }, [session, status, router])
+    if (activeTab === 'projects') {
+      fetchProjects()
+    } else {
+      fetchUsers()
+    }
+  }, [session, status, router, activeTab])
 
   const fetchProjects = async () => {
+    setLoading(true)
     try {
       const response = await fetch('/api/admin/projects')
       if (response.ok) {
@@ -58,6 +95,23 @@ export default function AdminPage() {
       }
     } catch (error) {
       setError('Alt projeler yüklenirken hata oluştu')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const fetchUsers = async () => {
+    setLoading(true)
+    try {
+      const response = await fetch('/api/admin/users')
+      if (response.ok) {
+        const data = await response.json()
+        setUsers(data)
+      } else {
+        setError('Kullanıcı listesi yüklenirken hata oluştu')
+      }
+    } catch (error) {
+      setError('Kullanıcı listesi yüklenirken hata oluştu')
     } finally {
       setLoading(false)
     }
@@ -116,6 +170,71 @@ export default function AdminPage() {
     }
   }
 
+  // User management functions
+  const startEdit = (user: User) => {
+    setEditingId(user.id)
+    setEditForm({
+      name: user.name,
+      role: user.role
+    })
+  }
+
+  const cancelEdit = () => {
+    setEditingId(null)
+    setEditForm({
+      name: '',
+      role: 'USER'
+    })
+  }
+
+  const saveEdit = async (userId: string) => {
+    try {
+      const response = await fetch(`/api/admin/users?id=${userId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(editForm),
+      })
+
+      if (response.ok) {
+        await fetchUsers()
+        setEditingId(null)
+      } else {
+        const data = await response.json()
+        setError(data.error || 'Güncelleme başarısız')
+      }
+    } catch (error) {
+      setError('Güncelleme sırasında hata oluştu')
+    }
+  }
+
+  const deleteUser = async (userId: string) => {
+    try {
+      const response = await fetch(`/api/admin/users?id=${userId}`, {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        await fetchUsers()
+        setDeleteConfirm(null)
+      } else {
+        const data = await response.json()
+        setError(data.error || 'Silme işlemi başarısız')
+      }
+    } catch (error) {
+      setError('Silme işlemi sırasında hata oluştu')
+    }
+  }
+
+  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target
+    setEditForm({
+      ...editForm,
+      [name]: value
+    })
+  }
+
   if (status === 'loading' || loading) {
     return (
       <DashboardLayout>
@@ -136,21 +255,37 @@ export default function AdminPage() {
     <DashboardLayout>
       <div className="px-4 py-6 sm:px-0">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-foreground">Admin Paneli - Alt Projeler</h1>
+          <h1 className="text-2xl font-bold text-foreground">Admin Paneli</h1>
           <p className="text-muted-foreground">
-            Sistemde kayıtlı tüm alt projeleri görüntüleyebilirsiniz
+            Sistem yönetimi ve kullanıcı işlemleri
           </p>
         </div>
 
-        {/* İstatistikler */}
-        <div className="grid grid-cols-1 md:grid-cols-1 gap-6 mb-8">
-          <div className="bg-card p-6 rounded-lg border border-gray-200/50 dark:border-gray-700/50">
-            <h3 className="text-sm font-medium text-muted-foreground">
-              Toplam Alt Proje
-            </h3>
-            <p className="text-2xl font-bold text-foreground">
-              {projects.length}
-            </p>
+        {/* Tab Navigation */}
+        <div className="mb-8">
+          <div className="border-b border-gray-200 dark:border-gray-700">
+            <nav className="-mb-px flex space-x-8">
+              <button
+                onClick={() => setActiveTab('projects')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'projects'
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
+                }`}
+              >
+                Alt Projeler
+              </button>
+              <button
+                onClick={() => setActiveTab('users')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'users'
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
+                }`}
+              >
+                Üyelik Yönetimi
+              </button>
+            </nav>
           </div>
         </div>
 
@@ -159,6 +294,21 @@ export default function AdminPage() {
             <div className="text-sm text-destructive">{error}</div>
           </div>
         )}
+
+        {/* Projects Tab */}
+        {activeTab === 'projects' && (
+          <>
+            {/* İstatistikler */}
+            <div className="grid grid-cols-1 md:grid-cols-1 gap-6 mb-8">
+              <div className="bg-card p-6 rounded-lg border border-gray-200/50 dark:border-gray-700/50">
+                <h3 className="text-sm font-medium text-muted-foreground">
+                  Toplam Alt Proje
+                </h3>
+                <p className="text-2xl font-bold text-foreground">
+                  {projects.length}
+                </p>
+              </div>
+            </div>
 
         {/* Alt Proje Listesi */}
         <div className="bg-card border border-gray-200/50 dark:border-gray-700/50 rounded-lg">
@@ -400,6 +550,225 @@ export default function AdminPage() {
               </div>
             </div>
           </div>
+        )}
+          </>
+        )}
+
+        {/* Users Tab */}
+        {activeTab === 'users' && (
+          <>
+            {/* User İstatistikler */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+              <div className="bg-card p-6 rounded-lg border border-gray-200/50 dark:border-gray-700/50">
+                <h3 className="text-sm font-medium text-muted-foreground">
+                  Toplam Kullanıcı
+                </h3>
+                <p className="text-2xl font-bold text-foreground">
+                  {users.length}
+                </p>
+              </div>
+              
+              <div className="bg-card p-6 rounded-lg border border-gray-200/50 dark:border-gray-700/50">
+                <h3 className="text-sm font-medium text-muted-foreground">
+                  Admin
+                </h3>
+                <p className="text-2xl font-bold text-foreground">
+                  {users.filter(u => u.role === 'ADMIN').length}
+                </p>
+              </div>
+              
+              <div className="bg-card p-6 rounded-lg border border-gray-200/50 dark:border-gray-700/50">
+                <h3 className="text-sm font-medium text-muted-foreground">
+                  İdareci
+                </h3>
+                <p className="text-2xl font-bold text-foreground">
+                  {users.filter(u => u.role === 'IDARECI').length}
+                </p>
+              </div>
+              
+              <div className="bg-card p-6 rounded-lg border border-gray-200/50 dark:border-gray-700/50">
+                <h3 className="text-sm font-medium text-muted-foreground">
+                  Öğretmen/Kullanıcı
+                </h3>
+                <p className="text-2xl font-bold text-foreground">
+                  {users.filter(u => u.role === 'USER' || u.role === 'OGRETMEN').length}
+                </p>
+              </div>
+            </div>
+
+            {/* Kullanıcı Listesi */}
+            <div className="bg-card border border-gray-200/50 dark:border-gray-700/50 rounded-lg">
+              <div className="px-6 py-4 border-b border-gray-200/50 dark:border-gray-700/50">
+                <h2 className="text-lg font-semibold text-foreground">
+                  Kullanıcı Yönetimi
+                </h2>
+              </div>
+              
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-border">
+                  <thead className="bg-muted/50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Kullanıcı
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        E-posta
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Rol
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Alt Proje Sayısı
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Kayıt Tarihi
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        İşlemler
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {users.map((user) => (
+                      <tr key={user.id} className="hover:bg-muted/25">
+                        {editingId === user.id ? (
+                          // Edit Mode
+                          <>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <input
+                                type="text"
+                                name="name"
+                                value={editForm.name}
+                                onChange={handleEditChange}
+                                className="w-full px-2 py-1 text-sm border border-gray-200/50 dark:border-gray-700/50 rounded bg-background text-foreground"
+                              />
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                              {user.email}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <select
+                                name="role"
+                                value={editForm.role}
+                                onChange={handleEditChange}
+                                className="text-sm border border-gray-200/50 dark:border-gray-700/50 rounded bg-background text-foreground px-2 py-1"
+                              >
+                                <option value="USER">USER</option>
+                                <option value="ADMIN">ADMIN</option>
+                                <option value="IDARECI">IDARECI</option>
+                                <option value="OGRETMEN">OGRETMEN</option>
+                              </select>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                              {user._count.userInfos}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                              {new Date(user.createdAt).toLocaleDateString('tr-TR')}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                              <div className="flex justify-end space-x-2">
+                                <button
+                                  onClick={() => saveEdit(user.id)}
+                                  className="px-3 py-1 bg-primary text-primary-foreground rounded text-xs hover:bg-primary/90"
+                                >
+                                  Kaydet
+                                </button>
+                                <button
+                                  onClick={cancelEdit}
+                                  className="px-3 py-1 border border-gray-200/50 dark:border-gray-700/50 text-foreground rounded text-xs hover:bg-accent"
+                                >
+                                  İptal
+                                </button>
+                              </div>
+                            </td>
+                          </>
+                        ) : (
+                          // View Mode
+                          <>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="flex items-center">
+                                <div className="text-sm font-medium text-foreground">
+                                  {user.name}
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                              {user.email}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                user.role === 'ADMIN'
+                                  ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                                  : user.role === 'IDARECI'
+                                  ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+                                  : user.role === 'OGRETMEN'
+                                  ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                                  : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                              }`}>
+                                {user.role}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                              {user._count.userInfos}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                              {new Date(user.createdAt).toLocaleDateString('tr-TR')}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                              <div className="flex justify-end space-x-2">
+                                <button
+                                  onClick={() => startEdit(user)}
+                                  className="px-3 py-1 bg-secondary text-secondary-foreground rounded text-xs hover:bg-secondary/80"
+                                >
+                                  Düzenle
+                                </button>
+                                {user.id !== session?.user.id && (
+                                  <button
+                                    onClick={() => setDeleteConfirm(user.id)}
+                                    className="px-3 py-1 bg-destructive text-destructive-foreground rounded text-xs hover:bg-destructive/80"
+                                  >
+                                    Sil
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                          </>
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Delete Confirmation Modal */}
+            {deleteConfirm && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                <div className="bg-card border border-gray-200/50 dark:border-gray-700/50 rounded-lg p-6 max-w-md w-full">
+                  <h3 className="text-lg font-semibold text-foreground mb-4">
+                    Kullanıcıyı Sil
+                  </h3>
+                  <p className="text-muted-foreground mb-6">
+                    Bu kullanıcıyı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz ve kullanıcının tüm alt projeleri de silinecektir.
+                  </p>
+                  <div className="flex justify-end space-x-4">
+                    <button
+                      onClick={() => setDeleteConfirm(null)}
+                      className="px-4 py-2 border border-gray-200/50 dark:border-gray-700/50 text-foreground rounded hover:bg-accent"
+                    >
+                      İptal
+                    </button>
+                    <button
+                      onClick={() => deleteUser(deleteConfirm)}
+                      className="px-4 py-2 bg-destructive text-destructive-foreground rounded hover:bg-destructive/80"
+                    >
+                      Sil
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </DashboardLayout>
