@@ -7,6 +7,24 @@ import CopyButton from '@/components/ui/CopyButton'
 import { exportToPDF } from '@/components/pdf/PDFTemplate'
 import { useSession } from 'next-auth/react'
 
+// Dropdown seçimleri için sabit veriler
+const MAIN_AREAS = [
+  'Biyoloji',
+  'Coğrafya', 
+  'Değerler Eğitimi',
+  'Dil ve Edebiyat',
+  'Fizik',
+  'Kimya',
+  'Matematik',
+  'Sosyoloji',
+  'Psikoloji',
+  'Tarih',
+  'Teknoloji ve Tasarım',
+  'Bilişim Teknolojileri ve Yazılım'
+]
+
+const PROJECT_TYPES = ['Araştırma', 'Tasarım']
+
 interface UserInfo {
   id: string
   title: string
@@ -49,9 +67,16 @@ function getWordCountStyle(count: number): string {
   return 'text-red-600 dark:text-red-400'
 }
 
+interface ProjectSubject {
+  id: string
+  name: string
+  isActive: boolean
+}
+
 export default function MyInfoPage() {
   const { data: session } = useSession()
   const [userInfos, setUserInfos] = useState<UserInfo[]>([])
+  const [subjects, setSubjects] = useState<ProjectSubject[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -74,6 +99,7 @@ export default function MyInfoPage() {
 
   useEffect(() => {
     fetchUserInfos()
+    fetchSubjects()
   }, [])
 
   // Kelime sayısını güncelle
@@ -98,6 +124,18 @@ export default function MyInfoPage() {
       setError('Bilgiler yüklenirken hata oluştu')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchSubjects = async () => {
+    try {
+      const response = await fetch('/api/project-subjects')
+      if (response.ok) {
+        const data = await response.json()
+        setSubjects(data)
+      }
+    } catch (error) {
+      console.error('Alt proje konuları yüklenemedi:', error)
     }
   }
 
@@ -234,7 +272,7 @@ export default function MyInfoPage() {
     }
   }
 
-  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target
     setEditForm({
       ...editForm,
@@ -333,13 +371,17 @@ export default function MyInfoPage() {
                               <label className="block text-sm font-medium mb-2 text-blue-800 dark:text-blue-200">
                                 Konu
                               </label>
-                              <input
-                                type="text"
+                              <select
                                 name="subject"
                                 value={editForm.subject}
                                 onChange={handleEditChange}
                                 className="w-full px-4 py-3 border border-blue-200 dark:border-blue-800 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/50 dark:bg-gray-900/50 text-blue-900 dark:text-blue-100"
-                              />
+                              >
+                                <option value="">Konu seçiniz</option>
+                                {subjects.map(subject => (
+                                  <option key={subject.id} value={subject.name}>{subject.name}</option>
+                                ))}
+                              </select>
                             </div>
                           </div>
                         </div>
@@ -357,25 +399,33 @@ export default function MyInfoPage() {
                               <label className="block text-sm font-medium mb-2 text-purple-800 dark:text-purple-200">
                                 Ana Alan
                               </label>
-                              <input
-                                type="text"
+                              <select
                                 name="mainArea"
                                 value={editForm.mainArea}
                                 onChange={handleEditChange}
                                 className="w-full px-4 py-3 border border-purple-200 dark:border-purple-800 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white/50 dark:bg-gray-900/50 text-purple-900 dark:text-purple-100"
-                              />
+                              >
+                                <option value="">Alan seçiniz</option>
+                                {MAIN_AREAS.map(area => (
+                                  <option key={area} value={area}>{area}</option>
+                                ))}
+                              </select>
                             </div>
                             <div>
                               <label className="block text-sm font-medium mb-2 text-purple-800 dark:text-purple-200">
                                 Proje Türü
                               </label>
-                              <input
-                                type="text"
+                              <select
                                 name="projectType"
                                 value={editForm.projectType}
                                 onChange={handleEditChange}
                                 className="w-full px-4 py-3 border border-purple-200 dark:border-purple-800 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white/50 dark:bg-gray-900/50 text-purple-900 dark:text-purple-100"
-                              />
+                              >
+                                <option value="">Tür seçiniz</option>
+                                {PROJECT_TYPES.map(type => (
+                                  <option key={type} value={type}>{type}</option>
+                                ))}
+                              </select>
                             </div>
                           </div>
                         </div>
