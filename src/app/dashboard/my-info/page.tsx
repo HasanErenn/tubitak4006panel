@@ -181,7 +181,7 @@ export default function MyInfoPage() {
         const data = await response.json()
         setError(data.error || 'Güncelleme başarısız')
       }
-    } catch (error) {
+    } catch (err) {
       setError('Güncelleme sırasında hata oluştu')
     }
   }
@@ -205,8 +205,8 @@ export default function MyInfoPage() {
         console.log('🔥 Silme hatası:', data)
         setError(data.error || 'Silme işlemi başarısız')
       }
-    } catch (error) {
-      console.log('🔥 Silme exception:', error)
+    } catch (err) {
+      console.log('🔥 Silme exception:', err)
       setError('Silme işlemi sırasında hata oluştu')
     }
   }
@@ -227,7 +227,7 @@ export default function MyInfoPage() {
       } else {
         setError(result.error || 'PDF oluşturulamadı')
       }
-    } catch (error) {
+    } catch (err) {
       setError('PDF oluşturulurken hata oluştu')
     } finally {
       setPdfLoading(null)

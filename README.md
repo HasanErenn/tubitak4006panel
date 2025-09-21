@@ -1,36 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TUBİTAK 4006 Proje Yönetim Sistemi
 
-## Getting Started
+Bu proje, TUBİTAK 4006 projelerinin yönetimi için geliştirilmiş Next.js tabanlı bir web uygulamasıdır.
 
-First, run the development server:
+## Özellikler
+
+- 🔐 NextAuth.js ile kimlik doğrulama
+- 👥 Rol tabanlı erişim kontrolü (USER, ADMIN, IDARECI, OGRETMEN)
+- 📄 PDF export özelliği
+- 🌓 Dark/Light theme desteği
+- 📱 Responsive tasarım
+- 🗄️ PostgreSQL veritabanı (Production: Neon, Development: SQLite)
+
+## Development
+
+Geliştirme sunucusunu başlatmak için:
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+[http://localhost:3000](http://localhost:3000) adresinden uygulamayı görüntüleyebilirsiniz.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Production Deployment (Vercel + Neon)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 1. Neon Database Setup
+1. [Neon](https://neon.tech) hesabınızda yeni bir database oluşturun
+2. Connection string'i kopyalayın
 
-## Learn More
+### 2. Vercel Environment Variables
+Vercel dashboard'ında aşağıdaki environment variables'ları ekleyin:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+DATABASE_URL="postgresql://username:password@ep-xyz.us-east-1.neon.tech/neondb?sslmode=require"
+NEXTAUTH_URL="https://your-app-name.vercel.app"
+NEXTAUTH_SECRET="güçlü-bir-secret-key-üretin"
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 3. Database Migration
+Deployment sonrasında database'i setup etmek için:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+# Vercel'da otomatik çalışacak, manuel gerekirse:
+npx prisma db push
+```
 
-## Deploy on Vercel
+### 4. Admin Account
+İlk admin hesabı:
+- Email: hasaneren@gmail.com
+- Password: eylul1010
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Project Structure
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+├── src/
+│   ├── app/                 # Next.js App Router
+│   │   ├── admin/          # Admin panel
+│   │   ├── auth/           # Authentication pages
+│   │   ├── dashboard/      # User dashboard
+│   │   └── api/            # API routes
+│   ├── components/         # Reusable components
+│   ├── lib/               # Utilities & configurations
+│   └── types/             # TypeScript definitions
+├── prisma/                # Database schema & seeds
+└── public/               # Static assets
+```
+
+## Tech Stack
+
+- **Frontend**: Next.js 15, React 19, TypeScript, Tailwind CSS
+- **Backend**: Next.js API Routes, NextAuth.js
+- **Database**: PostgreSQL (Neon), Prisma ORM
+- **PDF Generation**: jsPDF + html2canvas
+- **Deployment**: Vercel
+
+## Development vs Production
+
+- **Development**: SQLite database (`prisma/dev.db`)
+- **Production**: PostgreSQL database (Neon)
+
+Environment variables otomatik olarak `.env` dosyasından yüklenir. Production için `.env.example` dosyasına bakın.
