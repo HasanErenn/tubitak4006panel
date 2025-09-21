@@ -5,10 +5,13 @@ import { prisma } from '@/lib/prisma'
 import { authOptions } from '@/lib/auth'
 
 const userInfoSchema = z.object({
-  title: z.string().min(1, 'Başlık gereklidir'),
-  description: z.string().optional(),
-  content: z.string().min(1, 'İçerik gereklidir'),
-  category: z.string().optional(),
+  title: z.string().min(1, 'Alt proje adı gereklidir'),
+  mainArea: z.string().min(1, 'Ana alan seçimi gereklidir'),
+  projectType: z.string().min(1, 'Proje türü seçimi gereklidir'),
+  subject: z.string().min(1, 'Konu seçimi gereklidir'),
+  purpose: z.string().min(50, 'Amaç en az 50 kelime olmalıdır').max(1500, 'Amaç en fazla 150 kelime olmalıdır'),
+  method: z.string().min(50, 'Yöntem en az 50 kelime olmalıdır').max(1500, 'Yöntem en fazla 150 kelime olmalıdır'),
+  expectedResult: z.string().min(50, 'Beklenen sonuç en az 50 kelime olmalıdır').max(1500, 'Beklenen sonuç en fazla 150 kelime olmalıdır'),
   isPublic: z.boolean().default(false),
 })
 

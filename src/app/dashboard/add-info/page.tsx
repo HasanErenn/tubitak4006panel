@@ -1,35 +1,148 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import DashboardLayout from '@/components/layouts/DashboardLayout'
 
 interface FormData {
   title: string
-  description: string
-  content: string
-  category: string
+  mainArea: string
+  projectType: string
+  subject: string
+  purpose: string
+  method: string
+  expectedResult: string
   isPublic: boolean
+}
+
+interface ProjectSubject {
+  id: string
+  name: string
+}
+
+interface WordCount {
+  purpose: number
+  method: number
+  expectedResult: number
+}
+
+const MAIN_AREAS = [
+  'Biyoloji',
+  'Coğrafya', 
+  'Değerler Eğitimi',
+  'Dil ve Edebiyat',
+  'Fizik',
+  'Kimya',
+  'Matematik',
+  'Sosyoloji',
+  'Psikoloji',
+  'Tarih',
+  'Teknoloji ve Tasarım',
+  'Bilişim Teknolojileri ve Yazılım'
+]
+
+const PROJECT_TYPES = ['Araştırma', 'Tasarım']
+
+function countWords(text: string): number {
+  return text.trim().split(/\s+/).filter(word => word.length > 0).length
+}
+
+function getWordCountStyle(count: number): string {
+  if (count >= 50 && count <= 150) {
+    return 'text-green-600 dark:text-green-400'
+  }
+  return 'text-red-600 dark:text-red-400'
 }
 
 export default function AddInfoPage() {
   const router = useRouter()
   const [formData, setFormData] = useState<FormData>({
     title: '',
-    description: '',
-    content: '',
-    category: '',
+    mainArea: '',
+    projectType: '',
+    subject: '',
+    purpose: '',
+    method: '',
+    expectedResult: '',
     isPublic: false
+  })
+  const [subjects, setSubjects] = useState<ProjectSubject[]>([])
+  const [wordCount, setWordCount] = useState<WordCount>({
+    purpose: 0,
+    method: 0,
+    expectedResult: 0
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
 
+  // Alt proje konularını yükle
+  useEffect(() => {
+    fetchSubjects()
+  }, [])
+
+  // Kelime sayısını güncelle
+  useEffect(() => {
+    setWordCount({
+      purpose: countWords(formData.purpose),
+      method: countWords(formData.method),
+      expectedResult: countWords(formData.expectedResult)
+    })
+  }, [formData.purpose, formData.method, formData.expectedResult])
+
+  const fetchSubjects = async () => {
+    try {
+      const response = await fetch('/api/project-subjects')
+      if (response.ok) {
+        const data = await response.json()
+        setSubjects(data)
+      }
+    } catch (error) {
+      console.error('Alt proje konuları yüklenemedi:', error)
+    }
+  }
+
+  const validateForm = (): boolean => {
+    if (!formData.title.trim()) {
+      setError('Alt proje adı gereklidir')
+      return false
+    }
+    if (!formData.mainArea) {
+      setError('Alt proje ana alanı seçiniz')
+      return false
+    }
+    if (!formData.projectType) {
+      setError('Alt proje türü seçiniz')
+      return false
+    }
+    if (!formData.subject) {
+      setError('Alt proje konusu seçiniz')
+      return false
+    }
+    if (wordCount.purpose < 50 || wordCount.purpose > 150) {
+      setError('Amaç ve Önem bölümü 50-150 kelime arasında olmalıdır')
+      return false
+    }
+    if (wordCount.method < 50 || wordCount.method > 150) {
+      setError('Yöntem bölümü 50-150 kelime arasında olmalıdır')
+      return false
+    }
+    if (wordCount.expectedResult < 50 || wordCount.expectedResult > 150) {
+      setError('Beklenen Sonuç bölümü 50-150 kelime arasında olmalıdır')
+      return false
+    }
+    return true
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (!validateForm()) {
+      return
+    }
+
     setLoading(true)
     setError('')
-    setSuccess(false)
 
     try {
       const response = await fetch('/api/user-info', {
@@ -42,174 +155,244 @@ export default function AddInfoPage() {
 
       const data = await response.json()
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Bilgi kayıt işlemi başarısız')
+      if (response.ok) {
+        setSuccess(true)
+        setTimeout(() => {
+          router.push('/dashboard/my-info')
+        }, 2000)
+      } else {
+        setError(data.error || 'Bir hata oluştu')
       }
-
-      setSuccess(true)
-      setFormData({
-        title: '',
-        description: '',
-        content: '',
-        category: '',
-        isPublic: false
-      })
-
-      // 2 saniye sonra bilgilerim sayfasına yönlendir
-      setTimeout(() => {
-        router.push('/dashboard/my-info')
-      }, 2000)
-
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Bir hata oluştu')
+      setError('Bir hata oluştu. Lütfen tekrar deneyin.')
     } finally {
       setLoading(false)
     }
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target
-    setFormData({
-      ...formData,
+    setFormData(prev => ({
+      ...prev,
       [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
-    })
+    }))
+  }
+
+  if (success) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Başarılı!</h2>
+            <p className="text-gray-600 dark:text-gray-400">Alt proje bilgileriniz başarıyla kaydedildi.</p>
+          </div>
+        </div>
+      </DashboardLayout>
+    )
   }
 
   return (
     <DashboardLayout>
-      <div className="px-4 py-6 sm:px-0">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-foreground">Yeni Bilgi Ekle</h1>
-          <p className="text-muted-foreground">
-            Sisteme yeni bir bilgi girişi yapın
-          </p>
-        </div>
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-8">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+              Alt Proje Bilgi Girişi
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400">
+              Alt proje bilgilerinizi aşağıdaki formu doldurarak ekleyin
+            </p>
+          </div>
 
-        <div className="max-w-2xl">
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="bg-card border border-gray-200/50 dark:border-gray-700/50 rounded-lg p-6">
-              <div className="space-y-4">
-                <div>
-                  <label
-                    htmlFor="title"
-                    className="block text-sm font-medium text-foreground mb-2"
-                  >
-                    Başlık *
-                  </label>
-                  <input
-                    type="text"
-                    id="title"
-                    name="title"
-                    required
-                    className="w-full px-3 py-2 border border-gray-200/50 dark:border-gray-700/50 rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-                    placeholder="Bilgi başlığını girin"
-                    value={formData.title}
-                    onChange={handleChange}
-                  />
-                </div>
+            {/* Alt Proje Adı */}
+            <div>
+              <label htmlFor="title" className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                Alt Proje Adı *
+              </label>
+              <input
+                type="text"
+                id="title"
+                name="title"
+                required
+                className="w-full px-3 py-2 border border-gray-200/50 dark:border-gray-700/50 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Alt proje adınızı girin"
+                value={formData.title}
+                onChange={handleChange}
+              />
+            </div>
 
-                <div>
-                  <label
-                    htmlFor="description"
-                    className="block text-sm font-medium text-foreground mb-2"
-                  >
-                    Açıklama
-                  </label>
-                  <input
-                    type="text"
-                    id="description"
-                    name="description"
-                    className="w-full px-3 py-2 border border-gray-200/50 dark:border-gray-700/50 rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-                    placeholder="Kısa bir açıklama (opsiyonel)"
-                    value={formData.description}
-                    onChange={handleChange}
-                  />
-                </div>
+            {/* Alt Proje Ana Alanı */}
+            <div>
+              <label htmlFor="mainArea" className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                Alt Proje Ana Alanı *
+              </label>
+              <select
+                id="mainArea"
+                name="mainArea"
+                required
+                className="w-full px-3 py-2 border border-gray-200/50 dark:border-gray-700/50 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                value={formData.mainArea}
+                onChange={handleChange}
+              >
+                <option value="">Alan seçiniz</option>
+                {MAIN_AREAS.map(area => (
+                  <option key={area} value={area}>{area}</option>
+                ))}
+              </select>
+            </div>
 
-                <div>
-                  <label
-                    htmlFor="category"
-                    className="block text-sm font-medium text-foreground mb-2"
-                  >
-                    Kategori
-                  </label>
-                  <input
-                    type="text"
-                    id="category"
-                    name="category"
-                    className="w-full px-3 py-2 border border-gray-200/50 dark:border-gray-700/50 rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-                    placeholder="Kategori (opsiyonel)"
-                    value={formData.category}
-                    onChange={handleChange}
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="content"
-                    className="block text-sm font-medium text-foreground mb-2"
-                  >
-                    İçerik *
-                  </label>
-                  <textarea
-                    id="content"
-                    name="content"
-                    required
-                    rows={8}
-                    className="w-full px-3 py-2 border border-gray-200/50 dark:border-gray-700/50 rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-                    placeholder="Bilgi içeriğini detaylı olarak yazın..."
-                    value={formData.content}
-                    onChange={handleChange}
-                  />
-                </div>
-
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="isPublic"
-                    name="isPublic"
-                    className="h-4 w-4 text-primary focus:ring-primary border-gray-200/50 dark:border-gray-700/50 rounded"
-                    checked={formData.isPublic}
-                    onChange={handleChange}
-                  />
-                  <label
-                    htmlFor="isPublic"
-                    className="ml-2 block text-sm text-foreground"
-                  >
-                    Bu bilgiyi herkese açık yap
-                  </label>
-                </div>
+            {/* Alt Proje Türü */}
+            <div>
+              <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                Alt Proje Türü *
+              </label>
+              <div className="space-y-2">
+                {PROJECT_TYPES.map(type => (
+                  <div key={type} className="flex items-center">
+                    <input
+                      type="radio"
+                      id={`projectType-${type}`}
+                      name="projectType"
+                      value={type}
+                      checked={formData.projectType === type}
+                      onChange={handleChange}
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600"
+                    />
+                    <label htmlFor={`projectType-${type}`} className="ml-3 text-sm font-medium text-gray-900 dark:text-white">
+                      {type}
+                    </label>
+                  </div>
+                ))}
               </div>
             </div>
 
-            {error && (
-              <div className="rounded-md bg-destructive/10 p-4">
-                <div className="text-sm text-destructive">{error}</div>
-              </div>
-            )}
-
-            {success && (
-              <div className="rounded-md bg-green-50 dark:bg-green-900/20 p-4">
-                <div className="text-sm text-green-700 dark:text-green-400">
-                  Bilgi başarıyla kaydedildi! Bilgilerim sayfasına yönlendiriliyorsunuz...
-                </div>
-              </div>
-            )}
-
-            <div className="flex justify-end space-x-4">
-              <button
-                type="button"
-                onClick={() => router.back()}
-                className="px-4 py-2 border border-gray-200/50 dark:border-gray-700/50 text-foreground rounded-md hover:bg-accent transition-colors"
+            {/* Alt Proje Konusu */}
+            <div>
+              <label htmlFor="subject" className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                Alt Proje Konusu *
+              </label>
+              <select
+                id="subject"
+                name="subject"
+                required
+                className="w-full px-3 py-2 border border-gray-200/50 dark:border-gray-700/50 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                value={formData.subject}
+                onChange={handleChange}
               >
-                İptal
-              </button>
+                <option value="">Konu seçiniz</option>
+                {subjects.map(subject => (
+                  <option key={subject.id} value={subject.name}>{subject.name}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Amaç ve Önem */}
+            <div>
+              <label htmlFor="purpose" className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                Amaç ve Önem * (50-150 kelime)
+              </label>
+              <textarea
+                id="purpose"
+                name="purpose"
+                required
+                rows={4}
+                className="w-full px-3 py-2 border border-gray-200/50 dark:border-gray-700/50 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Alt projenizin amacını ve önemini açıklayın..."
+                value={formData.purpose}
+                onChange={handleChange}
+              />
+              <div className={`text-sm mt-1 ${getWordCountStyle(wordCount.purpose)}`}>
+                {wordCount.purpose} kelime
+                {wordCount.purpose < 50 && ' (En az 50 kelime gerekli)'}
+                {wordCount.purpose > 150 && ' (En fazla 150 kelime olmalı)'}
+              </div>
+            </div>
+
+            {/* Yöntem */}
+            <div>
+              <label htmlFor="method" className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                Yöntem * (50-150 kelime)
+              </label>
+              <textarea
+                id="method"
+                name="method"
+                required
+                rows={4}
+                className="w-full px-3 py-2 border border-gray-200/50 dark:border-gray-700/50 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Kullanacağınız yöntemleri açıklayın..."
+                value={formData.method}
+                onChange={handleChange}
+              />
+              <div className={`text-sm mt-1 ${getWordCountStyle(wordCount.method)}`}>
+                {wordCount.method} kelime
+                {wordCount.method < 50 && ' (En az 50 kelime gerekli)'}
+                {wordCount.method > 150 && ' (En fazla 150 kelime olmalı)'}
+              </div>
+            </div>
+
+            {/* Beklenen Sonuç */}
+            <div>
+              <label htmlFor="expectedResult" className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                Beklenen Sonuç * (50-150 kelime)
+              </label>
+              <textarea
+                id="expectedResult"
+                name="expectedResult"
+                required
+                rows={4}
+                className="w-full px-3 py-2 border border-gray-200/50 dark:border-gray-700/50 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Beklediğiniz sonuçları açıklayın..."
+                value={formData.expectedResult}
+                onChange={handleChange}
+              />
+              <div className={`text-sm mt-1 ${getWordCountStyle(wordCount.expectedResult)}`}>
+                {wordCount.expectedResult} kelime
+                {wordCount.expectedResult < 50 && ' (En az 50 kelime gerekli)'}
+                {wordCount.expectedResult > 150 && ' (En fazla 150 kelime olmalı)'}
+              </div>
+            </div>
+
+            {/* Herkese Açık */}
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="isPublic"
+                name="isPublic"
+                checked={formData.isPublic}
+                onChange={handleChange}
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 rounded"
+              />
+              <label htmlFor="isPublic" className="ml-3 text-sm font-medium text-gray-900 dark:text-white">
+                Bu bilgiyi herkese açık yap
+              </label>
+            </div>
+
+            {error && (
+              <div className="bg-red-50 dark:bg-red-900/50 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-200 px-4 py-3 rounded-md text-sm">
+                {error}
+              </div>
+            )}
+
+            <div className="flex gap-4 pt-4">
               <button
                 type="submit"
                 disabled={loading}
-                className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {loading ? 'Kaydediliyor...' : 'Kaydet'}
+              </button>
+              <button
+                type="button"
+                onClick={() => router.push('/dashboard/my-info')}
+                className="px-4 py-2 border border-gray-200/50 dark:border-gray-700/50 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              >
+                İptal
               </button>
             </div>
           </form>

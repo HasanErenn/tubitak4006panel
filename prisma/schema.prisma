@@ -37,10 +37,13 @@ model User {
 
 model UserInfo {
   id          String   @id @default(cuid())
-  title       String   // Bilgi başlığı
-  description String?  // Bilgi açıklaması
-  content     String   // Ana içerik
-  category    String?  // Kategori (opsiyonel)
+  title       String   // Alt Proje Adı
+  mainArea    String   // Alt Proje Ana Alanı
+  projectType String   // Alt Proje Türü (Araştırma/Tasarım)
+  subject     String   // Alt Proje Konusu
+  purpose     String   // Amaç ve Önem (50-150 kelime)
+  method      String   // Yöntem (50-150 kelime)
+  expectedResult String // Beklenen Sonuç (50-150 kelime)
   isPublic    Boolean  @default(false) // Herkese açık mı
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -50,4 +53,14 @@ model UserInfo {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("user_infos")
+}
+
+model ProjectSubject {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("project_subjects")
 }
