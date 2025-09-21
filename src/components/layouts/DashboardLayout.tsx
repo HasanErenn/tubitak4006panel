@@ -133,6 +133,19 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               </svg>
               Alt Projelerim
             </Link>
+            <Link
+              href="/dashboard/profile"
+              className={`inline-flex items-center px-4 py-3 text-sm font-medium rounded-t-lg transition-all duration-300 ${
+                pathname === '/dashboard/profile'
+                  ? 'text-white bg-gradient-to-r from-pink-600 to-rose-600 border-b-2 border-pink-500 shadow-lg transform scale-105'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-gradient-to-r hover:from-pink-50 hover:to-rose-50 dark:hover:from-pink-900/20 dark:hover:to-rose-900/20 border-b-2 border-transparent hover:border-pink-200 dark:hover:border-pink-800'
+              }`}
+            >
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              Kullanıcı Bilgilerim
+            </Link>
           </div>
         </div>
       </nav>
