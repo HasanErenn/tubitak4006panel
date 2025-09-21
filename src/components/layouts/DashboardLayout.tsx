@@ -1,7 +1,7 @@
 'use client'
 
 import { useSession, signOut } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { useEffect } from 'react'
 import Link from 'next/link'
 import ThemeToggle from '@/components/ui/ThemeToggle'
@@ -14,6 +14,7 @@ interface DashboardLayoutProps {
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const pathname = usePathname()
 
   useEffect(() => {
     if (status === 'loading') return
@@ -89,12 +90,16 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       </header>
 
       {/* Navigation */}
-      <nav className="bg-card/60 backdrop-blur-sm border-b border-gray-200/50 dark:border-gray-700/50/50">
+      <nav className="bg-card/60 backdrop-blur-sm border-b border-gray-200/50 dark:border-gray-700/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex space-x-1">
             <Link
               href="/dashboard"
-              className="inline-flex items-center px-4 py-3 text-sm font-medium text-primary bg-primary/10 border-b-2 border-primary rounded-t-lg"
+              className={`inline-flex items-center px-4 py-3 text-sm font-medium rounded-t-lg transition-all duration-300 ${
+                pathname === '/dashboard'
+                  ? 'text-white bg-gradient-to-r from-blue-600 to-purple-600 border-b-2 border-blue-500 shadow-lg transform scale-105'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 border-b-2 border-transparent hover:border-blue-200 dark:hover:border-blue-800'
+              }`}
             >
               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
@@ -104,7 +109,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </Link>
             <Link
               href="/dashboard/add-info"
-              className="inline-flex items-center px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent/50 border-b-2 border-transparent hover:border-gray-200/50 dark:border-gray-700/50 rounded-t-lg transition-all duration-200"
+              className={`inline-flex items-center px-4 py-3 text-sm font-medium rounded-t-lg transition-all duration-300 ${
+                pathname === '/dashboard/add-info'
+                  ? 'text-white bg-gradient-to-r from-green-600 to-emerald-600 border-b-2 border-green-500 shadow-lg transform scale-105'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-gradient-to-r hover:from-green-50 hover:to-emerald-50 dark:hover:from-green-900/20 dark:hover:to-emerald-900/20 border-b-2 border-transparent hover:border-green-200 dark:hover:border-green-800'
+              }`}
             >
               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -113,7 +122,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </Link>
             <Link
               href="/dashboard/my-info"
-              className="inline-flex items-center px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent/50 border-b-2 border-transparent hover:border-gray-200/50 dark:border-gray-700/50 rounded-t-lg transition-all duration-200"
+              className={`inline-flex items-center px-4 py-3 text-sm font-medium rounded-t-lg transition-all duration-300 ${
+                pathname === '/dashboard/my-info'
+                  ? 'text-white bg-gradient-to-r from-orange-600 to-amber-600 border-b-2 border-orange-500 shadow-lg transform scale-105'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50 dark:hover:from-orange-900/20 dark:hover:to-amber-900/20 border-b-2 border-transparent hover:border-orange-200 dark:hover:border-orange-800'
+              }`}
             >
               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
