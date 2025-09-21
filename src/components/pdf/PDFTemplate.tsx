@@ -64,7 +64,7 @@ export const exportToPDF = async (userInfo: UserInfo, user: User) => {
               
               <!-- Sağ Logo -->
               <div style="width: 100px; height: 100px; display: flex; align-items: center; justify-content: center;">
-                <img src="${window.location.origin}/sag-logo.png" style="width: 100px; height: 100px; object-fit: contain;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" crossorigin="anonymous" />
+                <img src="${window.location.origin}/sag-logo-2.png" style="width: 100px; height: 100px; object-fit: contain;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" crossorigin="anonymous" />
                 <span style="font-size: 12px; display: none; color: #666;">SAĞ LOGO</span>
               </div>
             </div>
@@ -266,7 +266,7 @@ const PDFTemplate: React.FC<{ userInfo: UserInfo; user: User }> = ({ userInfo, u
             {/* Sağ Logo */}
             <div className="w-24 h-24 flex items-center justify-center">
               <img 
-                src="/sag-logo.png" 
+                src="/sag-logo-2.png" 
                 alt="Sağ Logo" 
                 className="w-24 h-24 object-contain"
                 onError={(e) => {
