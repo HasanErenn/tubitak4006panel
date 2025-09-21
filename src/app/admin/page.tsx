@@ -1,38 +1,35 @@
 'use client'
 
+import React from 'react'
 import { useSession } from 'next-auth/react'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import DashboardLayout from '@/components/layouts/DashboardLayout'
 
-interface User {
+interface UserInfo {
   id: string
-  name: string
-  email: string
-  role: 'USER' | 'ADMIN'
+  title: string
+  mainArea: string
+  projectType: string
+  subject: string
+  purpose: string
+  method: string
+  expectedResult: string
+  isPublic: boolean
   createdAt: string
-  _count: {
-    userInfos: number
+  user: {
+    name: string
+    email: string
   }
-}
-
-interface EditUserData {
-  name: string
-  role: 'USER' | 'ADMIN'
 }
 
 export default function AdminPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
-  const [users, setUsers] = useState<User[]>([])
+  const [projects, setProjects] = useState<UserInfo[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const [editForm, setEditForm] = useState<EditUserData>({
-    name: '',
-    role: 'USER'
-  })
-  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
+  const [selectedProject, setSelectedProject] = useState<UserInfo | null>(null)
 
   useEffect(() => {
     if (status === 'loading') return
@@ -47,87 +44,76 @@ export default function AdminPage() {
       return
     }
 
-    fetchUsers()
+    fetchProjects()
   }, [session, status, router])
 
-  const fetchUsers = async () => {
+  const fetchProjects = async () => {
     try {
-      const response = await fetch('/api/admin/users')
+      const response = await fetch('/api/admin/projects')
       if (response.ok) {
         const data = await response.json()
-        setUsers(data)
+        setProjects(data)
       } else {
-        setError('Kullanıcı listesi yüklenirken hata oluştu')
+        setError('Alt projeler yüklenirken hata oluştu')
       }
     } catch (error) {
-      setError('Kullanıcı listesi yüklenirken hata oluştu')
+      setError('Alt projeler yüklenirken hata oluştu')
     } finally {
       setLoading(false)
     }
   }
 
-  const startEdit = (user: User) => {
-    setEditingId(user.id)
-    setEditForm({
-      name: user.name,
-      role: user.role
+  const handleProjectDetail = (project: UserInfo) => {
+    setSelectedProject(project)
+  }
+
+  const closeDetail = () => {
+    setSelectedProject(null)
+  }
+
+  const countWords = (text: string) => {
+    return text.trim().split(/\s+/).filter(word => word.length > 0).length
+  }
+
+  const copyToClipboard = (text: string, label: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      // Başarılı kopyalama bildirimi (isteğe bağlı)
+    }).catch(err => {
+      console.error('Kopyalama başarısız:', err)
     })
   }
 
-  const cancelEdit = () => {
-    setEditingId(null)
-    setEditForm({
-      name: '',
-      role: 'USER'
-    })
-  }
-
-  const saveEdit = async (userId: string) => {
+  const downloadPDF = async (project: UserInfo) => {
     try {
-      const response = await fetch(`/api/admin/users?id=${userId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(editForm),
-      })
-
-      if (response.ok) {
-        await fetchUsers()
-        setEditingId(null)
-      } else {
-        const data = await response.json()
-        setError(data.error || 'Güncelleme başarısız')
+      // PDF export fonksiyonunu import et
+      const { exportToPDF } = await import('@/components/pdf/PDFTemplate')
+      
+      // UserInfo formatına dönüştür
+      const userInfo = {
+        id: project.id,
+        title: project.title,
+        mainArea: project.mainArea,
+        projectType: project.projectType,
+        subject: project.subject,
+        purpose: project.purpose,
+        method: project.method,
+        expectedResult: project.expectedResult,
+        createdAt: project.createdAt,
+        updatedAt: project.createdAt
       }
-    } catch (error) {
-      setError('Güncelleme sırasında hata oluştu')
-    }
-  }
 
-  const deleteUser = async (userId: string) => {
-    try {
-      const response = await fetch(`/api/admin/users?id=${userId}`, {
-        method: 'DELETE',
-      })
-
-      if (response.ok) {
-        await fetchUsers()
-        setDeleteConfirm(null)
-      } else {
-        const data = await response.json()
-        setError(data.error || 'Silme işlemi başarısız')
+      const user = {
+        id: '',
+        name: project.user.name,
+        email: project.user.email
       }
-    } catch (error) {
-      setError('Silme işlemi sırasında hata oluştu')
-    }
-  }
 
-  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
-    setEditForm({
-      ...editForm,
-      [name]: value
-    })
+      // PDF'i indir
+      await exportToPDF(userInfo, user)
+    } catch (error) {
+      console.error('PDF indirme hatası:', error)
+      alert('PDF indirme sırasında bir hata oluştu.')
+    }
   }
 
   if (status === 'loading' || loading) {
@@ -150,47 +136,20 @@ export default function AdminPage() {
     <DashboardLayout>
       <div className="px-4 py-6 sm:px-0">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-foreground">Admin Paneli</h1>
+          <h1 className="text-2xl font-bold text-foreground">Admin Paneli - Alt Projeler</h1>
           <p className="text-muted-foreground">
-            Kullanıcı yönetimi ve sistem istatistikleri
+            Sistemde kayıtlı tüm alt projeleri görüntüleyebilirsiniz
           </p>
         </div>
 
         {/* İstatistikler */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-1 gap-6 mb-8">
           <div className="bg-card p-6 rounded-lg border border-gray-200/50 dark:border-gray-700/50">
             <h3 className="text-sm font-medium text-muted-foreground">
-              Toplam Kullanıcı
+              Toplam Alt Proje
             </h3>
             <p className="text-2xl font-bold text-foreground">
-              {users.length}
-            </p>
-          </div>
-          
-          <div className="bg-card p-6 rounded-lg border border-gray-200/50 dark:border-gray-700/50">
-            <h3 className="text-sm font-medium text-muted-foreground">
-              Admin Kullanıcı
-            </h3>
-            <p className="text-2xl font-bold text-foreground">
-              {users.filter(u => u.role === 'ADMIN').length}
-            </p>
-          </div>
-          
-          <div className="bg-card p-6 rounded-lg border border-gray-200/50 dark:border-gray-700/50">
-            <h3 className="text-sm font-medium text-muted-foreground">
-              Normal Kullanıcı
-            </h3>
-            <p className="text-2xl font-bold text-foreground">
-              {users.filter(u => u.role === 'USER').length}
-            </p>
-          </div>
-          
-          <div className="bg-card p-6 rounded-lg border border-gray-200/50 dark:border-gray-700/50">
-            <h3 className="text-sm font-medium text-muted-foreground">
-              Toplam Bilgi
-            </h3>
-            <p className="text-2xl font-bold text-foreground">
-              {users.reduce((total, user) => total + user._count.userInfos, 0)}
+              {projects.length}
             </p>
           </div>
         </div>
@@ -201,11 +160,11 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* Kullanıcı Listesi */}
+        {/* Alt Proje Listesi */}
         <div className="bg-card border border-gray-200/50 dark:border-gray-700/50 rounded-lg">
           <div className="px-6 py-4 border-b border-gray-200/50 dark:border-gray-700/50">
             <h2 className="text-lg font-semibold text-foreground">
-              Kullanıcı Yönetimi
+              Alt Projeler
             </h2>
           </div>
           
@@ -214,19 +173,16 @@ export default function AdminPage() {
               <thead className="bg-muted/50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Kullanıcı
+                    İsim Soyisim
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    E-posta
+                    Proje Adı
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Rol
+                    Ana Alan
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Bilgi Sayısı
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Kayıt Tarihi
+                    Tarih
                   </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     İşlemler
@@ -234,105 +190,46 @@ export default function AdminPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {users.map((user) => (
-                  <tr key={user.id} className="hover:bg-muted/25">
-                    {editingId === user.id ? (
-                      // Edit Mode
-                      <>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <input
-                            type="text"
-                            name="name"
-                            value={editForm.name}
-                            onChange={handleEditChange}
-                            className="w-full px-2 py-1 text-sm border border-gray-200/50 dark:border-gray-700/50 rounded bg-background text-foreground"
-                          />
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                          {user.email}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <select
-                            name="role"
-                            value={editForm.role}
-                            onChange={handleEditChange}
-                            className="text-sm border border-gray-200/50 dark:border-gray-700/50 rounded bg-background text-foreground px-2 py-1"
-                          >
-                            <option value="USER">USER</option>
-                            <option value="ADMIN">ADMIN</option>
-                          </select>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                          {user._count.userInfos}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                          {new Date(user.createdAt).toLocaleDateString('tr-TR')}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                          <div className="flex justify-end space-x-2">
-                            <button
-                              onClick={() => saveEdit(user.id)}
-                              className="px-3 py-1 bg-primary text-primary-foreground rounded text-xs hover:bg-primary/90"
-                            >
-                              Kaydet
-                            </button>
-                            <button
-                              onClick={cancelEdit}
-                              className="px-3 py-1 border border-gray-200/50 dark:border-gray-700/50 text-foreground rounded text-xs hover:bg-accent"
-                            >
-                              İptal
-                            </button>
-                          </div>
-                        </td>
-                      </>
-                    ) : (
-                      // View Mode
-                      <>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <div className="text-sm font-medium text-foreground">
-                              {user.name}
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                          {user.email}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            user.role === 'ADMIN'
-                              ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                              : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                          }`}>
-                            {user.role}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                          {user._count.userInfos}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                          {new Date(user.createdAt).toLocaleDateString('tr-TR')}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                          <div className="flex justify-end space-x-2">
-                            <button
-                              onClick={() => startEdit(user)}
-                              className="px-3 py-1 bg-secondary text-secondary-foreground rounded text-xs hover:bg-secondary/80"
-                            >
-                              Düzenle
-                            </button>
-                            {user.id !== session.user.id && (
-                              <button
-                                onClick={() => setDeleteConfirm(user.id)}
-                                className="px-3 py-1 bg-destructive text-destructive-foreground rounded text-xs hover:bg-destructive/80"
-                              >
-                                Sil
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                      </>
-                    )}
+                {projects.map((project) => (
+                  <tr key={project.id} className="hover:bg-muted/25">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-foreground">
+                        {project.user.name}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {project.user.email}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-foreground">
+                        {project.title}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {project.projectType}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                      {project.mainArea}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                      {new Date(project.createdAt).toLocaleDateString('tr-TR')}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                      <div className="flex justify-end space-x-2">
+                        <button
+                          onClick={() => handleProjectDetail(project)}
+                          className="px-3 py-1 bg-primary text-primary-foreground rounded text-xs hover:bg-primary/90"
+                        >
+                          Detay
+                        </button>
+                        <button
+                          onClick={() => downloadPDF(project)}
+                          className="px-3 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700"
+                        >
+                          PDF İndir
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -340,29 +237,166 @@ export default function AdminPage() {
           </div>
         </div>
 
-        {/* Delete Confirmation Modal */}
-        {deleteConfirm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-card border border-gray-200/50 dark:border-gray-700/50 rounded-lg p-6 max-w-md w-full">
-              <h3 className="text-lg font-semibold text-foreground mb-4">
-                Kullanıcıyı Sil
-              </h3>
-              <p className="text-muted-foreground mb-6">
-                Bu kullanıcıyı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz ve kullanıcının tüm bilgileri de silinecektir.
-              </p>
-              <div className="flex justify-end space-x-4">
+        {/* Project Detail Modal */}
+        {selectedProject && (
+          <div className="fixed inset-0 bg-white dark:bg-gray-900 flex items-center justify-center p-4 z-50">
+            <div className="bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-xl">
+              <div className="px-6 py-4 border-b border-gray-300 dark:border-gray-700 flex justify-between items-center bg-white dark:bg-gray-900">
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                  Alt Proje Detayları
+                </h3>
                 <button
-                  onClick={() => setDeleteConfirm(null)}
-                  className="px-4 py-2 border border-gray-200/50 dark:border-gray-700/50 text-foreground rounded hover:bg-accent"
+                  onClick={closeDetail}
+                  className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
                 >
-                  İptal
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
                 </button>
-                <button
-                  onClick={() => deleteUser(deleteConfirm)}
-                  className="px-4 py-2 bg-destructive text-destructive-foreground rounded hover:bg-destructive/80"
-                >
-                  Sil
-                </button>
+              </div>
+              
+              <div className="p-6 bg-white dark:bg-gray-900">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Sol Kolon */}
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                        Kullanıcı Bilgileri
+                      </label>
+                      <div className="bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 p-3 rounded-lg">
+                        <p className="font-medium text-gray-900 dark:text-white">{selectedProject.user.name}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">{selectedProject.user.email}</p>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                        Alt Proje Adı
+                      </label>
+                      <div 
+                        className="bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 p-3 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                        onClick={() => copyToClipboard(selectedProject.title, 'Alt Proje Adı')}
+                        title="Kopyalamak için tıklayın"
+                      >
+                        <p className="text-gray-900 dark:text-white">{selectedProject.title}</p>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                        Alt Proje Ana Alanı
+                      </label>
+                      <div 
+                        className="bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 p-3 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                        onClick={() => copyToClipboard(selectedProject.mainArea, 'Alt Proje Ana Alanı')}
+                        title="Kopyalamak için tıklayın"
+                      >
+                        <p className="text-gray-900 dark:text-white">{selectedProject.mainArea}</p>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                        Alt Proje Türü
+                      </label>
+                      <div 
+                        className="bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 p-3 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                        onClick={() => copyToClipboard(selectedProject.projectType, 'Alt Proje Türü')}
+                        title="Kopyalamak için tıklayın"
+                      >
+                        <p className="text-gray-900 dark:text-white">{selectedProject.projectType}</p>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                        Alt Proje Konusu
+                      </label>
+                      <div 
+                        className="bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 p-3 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                        onClick={() => copyToClipboard(selectedProject.subject, 'Alt Proje Konusu')}
+                        title="Kopyalamak için tıklayın"
+                      >
+                        <p className="text-gray-900 dark:text-white">{selectedProject.subject}</p>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                        Oluşturulma Tarihi
+                      </label>
+                      <div className="bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 p-3 rounded-lg">
+                        <p className="text-gray-900 dark:text-white">{new Date(selectedProject.createdAt).toLocaleString('tr-TR')}</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Sağ Kolon */}
+                  <div className="space-y-4">
+                    <div>
+                      <div className="flex justify-between items-center mb-2">
+                        <label className="block text-sm font-medium text-gray-900 dark:text-white">
+                          Amaç ve Önem
+                        </label>
+                        <span className="text-xs text-gray-600 dark:text-gray-400">
+                          {countWords(selectedProject.purpose)} kelime
+                        </span>
+                      </div>
+                      <div 
+                        className="bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 p-3 rounded-lg h-32 overflow-y-auto cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                        onClick={() => copyToClipboard(selectedProject.purpose, 'Amaç ve Önem')}
+                        title="Kopyalamak için tıklayın"
+                      >
+                        <p className="text-sm whitespace-pre-wrap text-gray-900 dark:text-white">{selectedProject.purpose}</p>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <div className="flex justify-between items-center mb-2">
+                        <label className="block text-sm font-medium text-gray-900 dark:text-white">
+                          Yöntem
+                        </label>
+                        <span className="text-xs text-gray-600 dark:text-gray-400">
+                          {countWords(selectedProject.method)} kelime
+                        </span>
+                      </div>
+                      <div 
+                        className="bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 p-3 rounded-lg h-32 overflow-y-auto cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                        onClick={() => copyToClipboard(selectedProject.method, 'Yöntem')}
+                        title="Kopyalamak için tıklayın"
+                      >
+                        <p className="text-sm whitespace-pre-wrap text-gray-900 dark:text-white">{selectedProject.method}</p>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <div className="flex justify-between items-center mb-2">
+                        <label className="block text-sm font-medium text-gray-900 dark:text-white">
+                          Beklenen Sonuç
+                        </label>
+                        <span className="text-xs text-gray-600 dark:text-gray-400">
+                          {countWords(selectedProject.expectedResult)} kelime
+                        </span>
+                      </div>
+                      <div 
+                        className="bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 p-3 rounded-lg h-32 overflow-y-auto cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                        onClick={() => copyToClipboard(selectedProject.expectedResult, 'Beklenen Sonuç')}
+                        title="Kopyalamak için tıklayın"
+                      >
+                        <p className="text-sm whitespace-pre-wrap text-gray-900 dark:text-white">{selectedProject.expectedResult}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="mt-6 flex justify-end border-t border-gray-300 dark:border-gray-600 pt-4">
+                  <button
+                    onClick={closeDetail}
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                  >
+                    Kapat
+                  </button>
+                </div>
               </div>
             </div>
           </div>
