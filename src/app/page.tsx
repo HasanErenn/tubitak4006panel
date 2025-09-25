@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import Footer from "@/components/layouts/Footer";
 import Timeline from "@/components/Timeline";
@@ -65,17 +66,23 @@ export default function Home() {
           {/* Logo Section */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-8 max-w-4xl mx-auto mb-12">
             <div className="flex items-center justify-center">
-              <img 
+              <Image 
                 src="/sol-logo.png" 
                 alt="Sol Logo" 
+                width={128}
+                height={128}
                 className="h-32 w-auto object-contain hover:scale-105 transition-transform duration-300"
+                priority
               />
             </div>
             <div className="flex items-center justify-center">
-              <img 
+              <Image 
                 src="/sag-logo-2.png" 
                 alt="Sağ Logo" 
+                width={128}
+                height={128}
                 className="h-32 w-auto object-contain hover:scale-105 transition-transform duration-300"
+                priority
               />
             </div>
           </div>

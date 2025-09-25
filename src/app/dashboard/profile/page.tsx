@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
 import DashboardLayout from '@/components/layouts/DashboardLayout'
 
 interface UserProfile {
@@ -15,7 +14,6 @@ interface UserProfile {
 
 export default function ProfilePage() {
   const { data: session, update } = useSession()
-  const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
