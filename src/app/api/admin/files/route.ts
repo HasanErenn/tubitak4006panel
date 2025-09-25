@@ -79,6 +79,7 @@ export async function POST(request: NextRequest) {
     // Dosyayı Vercel Blob Storage'a yükle
     const blob = await put(uniqueFileName, file, {
       access: 'public',
+      token: process.env.BLOB_READ_WRITE_TOKEN,
     })
     
     console.log('✅ Blob Storage yükleme başarılı:', blob.url)
