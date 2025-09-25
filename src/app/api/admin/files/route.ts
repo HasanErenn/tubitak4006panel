@@ -17,10 +17,13 @@ const ALLOWED_TYPES = [
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 
 export async function POST(request: NextRequest) {
+  console.log('📁 Dosya yükleme isteği alındı')
   try {
     const session = await getServerSession(authOptions)
+    console.log('👤 Session kontrolü:', session?.user?.email)
     
     if (!session?.user?.id) {
+      console.log('❌ Kullanıcı giriş yapmamış')
       return NextResponse.json(
         { error: 'Giriş yapmış olmanız gerekir' },
         { status: 401 }
@@ -35,10 +38,18 @@ export async function POST(request: NextRequest) {
     }
 
     const formData = await request.formData()
+    console.log('📋 FormData alındı')
     const file = formData.get('file') as File
     const description = formData.get('description') as string
+    
+    console.log('📄 Dosya bilgisi:', {
+      name: file?.name,
+      size: file?.size,
+      type: file?.type
+    })
 
     if (!file) {
+      console.log('❌ Dosya seçilmedi')
       return NextResponse.json(
         { error: 'Dosya seçilmedi' },
         { status: 400 }
@@ -64,7 +75,16 @@ export async function POST(request: NextRequest) {
     // Benzersiz dosya adı oluştur
     const fileExtension = path.extname(file.name)
     const uniqueFileName = `${uuidv4()}${fileExtension}`
-    const filePath = path.join(process.cwd(), 'public/uploads', uniqueFileName)
+    const uploadsDir = path.join(process.cwd(), 'public/uploads')
+    const filePath = path.join(uploadsDir, uniqueFileName)
+
+    // Uploads klasörünün varlığını kontrol et
+    try {
+      await fs.access(uploadsDir)
+    } catch {
+      // Klasör yoksa oluştur
+      await fs.mkdir(uploadsDir, { recursive: true })
+    }
 
     // Dosyayı kaydet
     const arrayBuffer = await file.arrayBuffer()
@@ -72,6 +92,7 @@ export async function POST(request: NextRequest) {
     await fs.writeFile(filePath, buffer)
 
     // Database'e kaydet
+    console.log('💾 Database kayıt başlatılıyor...')
     const sharedFile = await prisma.sharedFile.create({
       data: {
         fileName: uniqueFileName,
@@ -82,6 +103,7 @@ export async function POST(request: NextRequest) {
         uploadedById: session.user.id,
       },
     })
+    console.log('✅ Database kaydı başarılı:', sharedFile.id)
 
     return NextResponse.json({
       success: true,
@@ -97,8 +119,18 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Dosya yükleme hatası:', error)
+    
+    // Daha detaylı hata mesajı
+    let errorMessage = 'Dosya yükleme sırasında bir hata oluştu'
+    if (error instanceof Error) {
+      errorMessage = error.message
+    }
+    
     return NextResponse.json(
-      { error: 'Dosya yükleme sırasında bir hata oluştu' },
+      { 
+        error: errorMessage,
+        details: process.env.NODE_ENV === 'development' ? error : undefined
+      },
       { status: 500 }
     )
   }
