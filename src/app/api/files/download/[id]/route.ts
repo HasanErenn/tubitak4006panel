@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { promises as fs } from 'fs'
-import path from 'path'
 
 export async function GET(
   request: NextRequest,
@@ -35,27 +33,8 @@ export async function GET(
       )
     }
 
-    // Dosyayı filesystem'den oku
-    const filePath = path.join(process.cwd(), 'public/uploads', file.fileName)
-    
-    try {
-      const fileBuffer = await fs.readFile(filePath)
-      
-      // Response headers'ını ayarla
-      const response = new NextResponse(fileBuffer as unknown as BodyInit)
-      response.headers.set('Content-Type', file.fileType)
-      response.headers.set('Content-Disposition', `attachment; filename="${encodeURIComponent(file.originalName)}"`)
-      response.headers.set('Content-Length', fileBuffer.length.toString())
-      
-      return response
-      
-    } catch (error) {
-      console.error('Dosya okuma hatası:', error)
-      return NextResponse.json(
-        { error: 'Dosya bulunamadı veya okunamadı' },
-        { status: 404 }
-      )
-    }
+    // Vercel Blob URL'ine yönlendir
+    return NextResponse.redirect(file.fileName) // fileName artık blob URL'i içeriyor
 
   } catch (error) {
     console.error('Dosya indirme hatası:', error)

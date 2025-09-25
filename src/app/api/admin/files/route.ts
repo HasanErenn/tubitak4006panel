@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { promises as fs } from 'fs'
-import path from 'path'
+import { put } from '@vercel/blob'
 import { v4 as uuidv4 } from 'uuid'
 
 // Desteklenen dosya türleri
@@ -73,29 +72,22 @@ export async function POST(request: NextRequest) {
     }
 
     // Benzersiz dosya adı oluştur
-    const fileExtension = path.extname(file.name)
-    const uniqueFileName = `${uuidv4()}${fileExtension}`
-    const uploadsDir = path.join(process.cwd(), 'public/uploads')
-    const filePath = path.join(uploadsDir, uniqueFileName)
-
-    // Uploads klasörünün varlığını kontrol et
-    try {
-      await fs.access(uploadsDir)
-    } catch {
-      // Klasör yoksa oluştur
-      await fs.mkdir(uploadsDir, { recursive: true })
-    }
-
-    // Dosyayı kaydet
-    const arrayBuffer = await file.arrayBuffer()
-    const buffer = Buffer.from(arrayBuffer)
-    await fs.writeFile(filePath, buffer)
+    const fileExtension = file.name.split('.').pop()
+    const uniqueFileName = `${uuidv4()}.${fileExtension}`
+    
+    console.log('☁️ Dosyayı Vercel Blob Storage\'a yüklüyorum...')
+    // Dosyayı Vercel Blob Storage'a yükle
+    const blob = await put(uniqueFileName, file, {
+      access: 'public',
+    })
+    
+    console.log('✅ Blob Storage yükleme başarılı:', blob.url)
 
     // Database'e kaydet
     console.log('💾 Database kayıt başlatılıyor...')
     const sharedFile = await prisma.sharedFile.create({
       data: {
-        fileName: uniqueFileName,
+        fileName: blob.url, // Vercel Blob URL'ini saklıyoruz
         originalName: file.name,
         fileType: file.type,
         fileSize: file.size,
