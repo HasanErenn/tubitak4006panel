@@ -35,6 +35,9 @@ model User {
   
   // Yüklenen paylaşılan dosyalar
   sharedFiles SharedFile[]
+  
+  // Oluşturulan timeline öğeleri
+  timelineItems Timeline[]
 
   @@map("users")
 }
@@ -86,4 +89,22 @@ model SharedFile {
   uploadedBy   User     @relation(fields: [uploadedById], references: [id], onDelete: Cascade)
 
   @@map("shared_files")
+}
+
+model Timeline {
+  id          String   @id @default(cuid())
+  title       String   // Başlık
+  description String   // Açıklama
+  targetDate  DateTime // Hedef tarih
+  status      String   // pending, in-progress, completed, delayed
+  order       Int      // Sıralama
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // İlişkiler
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Cascade)
+
+  @@map("timeline_items")
 }

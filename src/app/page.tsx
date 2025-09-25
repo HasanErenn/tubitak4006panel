@@ -1,6 +1,7 @@
 import Link from "next/link";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import Footer from "@/components/layouts/Footer";
+import Timeline from "@/components/Timeline";
 
 export default function Home() {
   return (
@@ -62,7 +63,7 @@ export default function Home() {
           </div>
 
           {/* Logo Section */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-8 max-w-4xl mx-auto">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-8 max-w-4xl mx-auto mb-12">
             <div className="flex items-center justify-center">
               <img 
                 src="/sol-logo.png" 
@@ -80,6 +81,22 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* Timeline Section */}
+      <section className="relative z-10 bg-white/80 backdrop-blur-sm border-t border-gray-200 py-16">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Proje İlerleme Durumu
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              TUBİTAK 4006 projemizin güncel durumu ve önemli tarihler
+            </p>
+          </div>
+          
+          <Timeline showAll={false} />
+        </div>
+      </section>
       
       <Footer />
     </div>

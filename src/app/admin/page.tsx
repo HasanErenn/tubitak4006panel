@@ -297,6 +297,12 @@ export default function AdminPage() {
               >
                 Dosya Yönetimi
               </button>
+              <button
+                onClick={() => router.push('/admin/timeline')}
+                className="py-2 px-1 border-b-2 font-medium text-sm border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300"
+              >
+                Timeline Yönetimi
+              </button>
             </nav>
           </div>
         </div>

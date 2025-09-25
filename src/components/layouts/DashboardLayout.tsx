@@ -150,6 +150,19 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               </>
             )}
             <Link
+              href="/dashboard/timeline"
+              className={`inline-flex items-center px-4 py-3 text-sm font-medium rounded-t-lg transition-all duration-300 ${
+                pathname === '/dashboard/timeline'
+                  ? 'text-white bg-gradient-to-r from-green-600 to-teal-600 border-b-2 border-green-500 shadow-lg transform scale-105'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-gradient-to-r hover:from-green-50 hover:to-teal-50 dark:hover:from-green-900/20 dark:hover:to-teal-900/20 border-b-2 border-transparent hover:border-green-200 dark:hover:border-green-800'
+              }`}
+            >
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Proje Timeline
+            </Link>
+            <Link
               href="/dashboard/shared-files"
               className={`inline-flex items-center px-4 py-3 text-sm font-medium rounded-t-lg transition-all duration-300 ${
                 pathname === '/dashboard/shared-files'
