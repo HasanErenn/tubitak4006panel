@@ -13,6 +13,7 @@ interface UserInfo {
   purpose: string
   method: string
   expectedResult: string
+  surveyApplied: boolean
   createdAt: string
   updatedAt: string
 }
@@ -122,6 +123,17 @@ export const exportToPDF = async (userInfo: UserInfo, user: User) => {
                 </td>
                 <td style="border: 1px solid #000; padding: 12px;">
                   ${userInfo.subject || 'Belirtilmedi'}
+                </td>
+              </tr>
+              
+              <tr>
+                <td style="border: 1px solid #000; padding: 12px; font-weight: bold; background: #f0f0f0;">
+                  Anket Uygulanacak mı:
+                </td>
+                <td style="border: 1px solid #000; padding: 12px;">
+                  <strong style="color: ${userInfo.surveyApplied ? '#16a34a' : '#dc2626'};">
+                    ${userInfo.surveyApplied ? 'Evet' : 'Hayır'}
+                  </strong>
                 </td>
               </tr>
               
@@ -321,6 +333,17 @@ const PDFTemplate: React.FC<{ userInfo: UserInfo; user: User }> = ({ userInfo, u
               </td>
               <td className="border border-black p-3">
                 {userInfo.subject || 'Belirtilmedi'}
+              </td>
+            </tr>
+            
+            <tr>
+              <td className="border border-black p-3 font-semibold bg-gray-100">
+                Anket Uygulanacak mı:
+              </td>
+              <td className="border border-black p-3">
+                <span className={`font-bold ${userInfo.surveyApplied ? 'text-green-600' : 'text-red-600'}`}>
+                  {userInfo.surveyApplied ? 'Evet' : 'Hayır'}
+                </span>
               </td>
             </tr>
             

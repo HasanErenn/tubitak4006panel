@@ -48,7 +48,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
                 <div>
                   <h1 className="text-xl font-bold text-foreground">
-                    MFL TYS
+                    TUBİTAK 4006 Proje Yönetim Sistemi
                   </h1>
                   <p className="text-sm text-muted-foreground">
                     {session.user.name} Hoşgeldiniz

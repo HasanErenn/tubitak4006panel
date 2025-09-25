@@ -13,6 +13,7 @@ interface FormData {
   purpose: string
   method: string
   expectedResult: string
+  surveyApplied: boolean
 }
 
 interface ProjectSubject {
@@ -63,7 +64,8 @@ export default function AddInfoPage() {
     subject: '',
     purpose: '',
     method: '',
-    expectedResult: ''
+    expectedResult: '',
+    surveyApplied: false
   })
   const [subjects, setSubjects] = useState<ProjectSubject[]>([])
   const [wordCount, setWordCount] = useState<WordCount>({
@@ -88,6 +90,8 @@ export default function AddInfoPage() {
       expectedResult: countWords(formData.expectedResult)
     })
   }, [formData.purpose, formData.method, formData.expectedResult])
+
+
 
   const fetchSubjects = async () => {
     try {
@@ -328,6 +332,45 @@ export default function AddInfoPage() {
                     <option key={subject.id} value={subject.name}>{subject.name}</option>
                   ))}
                 </select>
+              </div>
+            </div>
+
+            {/* Anket Sorusu */}
+            <div className="bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20 rounded-xl p-6 border border-teal-200/50 dark:border-teal-800/50">
+              <h3 className="font-bold text-teal-900 dark:text-teal-100 mb-4 flex items-center">
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                </svg>
+                Anket Uygulaması
+              </h3>
+              <div className="space-y-4">
+                <label className="block text-sm font-medium text-teal-800 dark:text-teal-200">
+                  Anket uygulayacak mısınız? *
+                </label>
+                <div className="flex gap-6">
+                  <label className="flex items-center cursor-pointer">
+                    <input
+                      type="radio"
+                      name="surveyApplied"
+                      value="true"
+                      checked={formData.surveyApplied === true}
+                      onChange={() => setFormData({...formData, surveyApplied: true})}
+                      className="w-4 h-4 text-teal-600 border-gray-300 focus:ring-teal-500 focus:ring-2"
+                    />
+                    <span className="ml-2 text-teal-900 dark:text-teal-100 font-medium">Evet</span>
+                  </label>
+                  <label className="flex items-center cursor-pointer">
+                    <input
+                      type="radio"
+                      name="surveyApplied"
+                      value="false"
+                      checked={formData.surveyApplied === false}
+                      onChange={() => setFormData({...formData, surveyApplied: false})}
+                      className="w-4 h-4 text-teal-600 border-gray-300 focus:ring-teal-500 focus:ring-2"
+                    />
+                    <span className="ml-2 text-teal-900 dark:text-teal-100 font-medium">Hayır</span>
+                  </label>
+                </div>
               </div>
             </div>
 

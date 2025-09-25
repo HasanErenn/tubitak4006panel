@@ -4,10 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "npx prisma generate && next build --turbopack",
+    "build": "npx prisma generate && npx prisma db push && next build --turbopack",
     "start": "next start",
     "lint": "eslint",
-    "postinstall": "npx prisma generate"
+    "postinstall": "npx prisma generate",
+    "migrate": "npx prisma db push"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.1",

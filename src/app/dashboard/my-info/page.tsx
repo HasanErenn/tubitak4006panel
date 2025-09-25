@@ -34,6 +34,7 @@ interface UserInfo {
   purpose: string
   method: string
   expectedResult: string
+  surveyApplied: boolean
   isPublic: boolean
   createdAt: string
   updatedAt: string
@@ -48,6 +49,7 @@ interface EditFormData {
   purpose: string
   method: string
   expectedResult: string
+  surveyApplied: boolean
 }
 
 interface WordCount {
@@ -88,7 +90,8 @@ export default function MyInfoPage() {
     subject: '',
     purpose: '',
     method: '',
-    expectedResult: ''
+    expectedResult: '',
+    surveyApplied: false
   })
   const [wordCount, setWordCount] = useState<WordCount>({
     purpose: 0,
@@ -148,7 +151,8 @@ export default function MyInfoPage() {
       subject: info.subject,
       purpose: info.purpose,
       method: info.method,
-      expectedResult: info.expectedResult
+      expectedResult: info.expectedResult,
+      surveyApplied: info.surveyApplied
     })
   }
 
@@ -161,7 +165,8 @@ export default function MyInfoPage() {
       subject: '',
       purpose: '',
       method: '',
-      expectedResult: ''
+      expectedResult: '',
+      surveyApplied: false
     })
   }
 
@@ -203,6 +208,7 @@ export default function MyInfoPage() {
     }
 
     try {
+
       const response = await fetch(`/api/user-info/${id}`, {
         method: 'PUT',
         headers: {
@@ -502,6 +508,45 @@ export default function MyInfoPage() {
                           </div>
                         </div>
 
+                        {/* Anket Sorusu */}
+                        <div className="bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20 rounded-xl p-6 border border-teal-200/50 dark:border-teal-800/50">
+                          <h4 className="font-bold text-teal-900 dark:text-teal-100 mb-4 flex items-center">
+                            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                            </svg>
+                            Anket Uygulaması
+                          </h4>
+                          <div className="space-y-4">
+                            <label className="block text-sm font-medium text-teal-800 dark:text-teal-200">
+                              Anket uygulayacak mısınız? *
+                            </label>
+                            <div className="flex gap-6">
+                              <label className="flex items-center cursor-pointer">
+                                <input
+                                  type="radio"
+                                  name="surveyApplied"
+                                  value="true"
+                                  checked={editForm.surveyApplied === true}
+                                  onChange={() => setEditForm({...editForm, surveyApplied: true})}
+                                  className="w-4 h-4 text-teal-600 border-gray-300 focus:ring-teal-500 focus:ring-2"
+                                />
+                                <span className="ml-2 text-teal-900 dark:text-teal-100 font-medium">Evet</span>
+                              </label>
+                              <label className="flex items-center cursor-pointer">
+                                <input
+                                  type="radio"
+                                  name="surveyApplied"
+                                  value="false"
+                                  checked={editForm.surveyApplied === false}
+                                  onChange={() => setEditForm({...editForm, surveyApplied: false})}
+                                  className="w-4 h-4 text-teal-600 border-gray-300 focus:ring-teal-500 focus:ring-2"
+                                />
+                                <span className="ml-2 text-teal-900 dark:text-teal-100 font-medium">Hayır</span>
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+
                         <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
                           <div className="flex justify-end space-x-4">
                             <button
@@ -541,7 +586,7 @@ export default function MyInfoPage() {
                               {info.title}
                             </h3>
                           </div>
-                          <div className="grid grid-cols-3 gap-4 text-sm text-indigo-100 select-text cursor-text">
+                          <div className="grid grid-cols-2 gap-4 text-sm text-indigo-100 select-text cursor-text">
                             <div className="flex items-center">
                               <span className="font-medium">Ana Alan:</span>
                               <span className="ml-2 bg-white/20 px-2 py-1 rounded">{info.mainArea}</span>
@@ -553,6 +598,16 @@ export default function MyInfoPage() {
                             <div className="flex items-center">
                               <span className="font-medium">Konu:</span>
                               <span className="ml-2 bg-white/20 px-2 py-1 rounded truncate">{info.subject}</span>
+                            </div>
+                            <div className="flex items-center">
+                              <span className="font-medium">Anket:</span>
+                              <span className={`ml-2 px-2 py-1 rounded font-medium ${
+                                info.surveyApplied 
+                                  ? 'bg-green-500/80 text-white' 
+                                  : 'bg-red-500/80 text-white'
+                              }`}>
+                                {info.surveyApplied ? 'Evet' : 'Hayır'}
+                              </span>
                             </div>
                           </div>
                         </div>

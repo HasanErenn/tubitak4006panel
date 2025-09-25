@@ -45,6 +45,7 @@ model UserInfo {
   purpose     String   // Amaç ve Önem (50-150 kelime)
   method      String   // Yöntem (50-150 kelime)
   expectedResult String // Beklenen Sonuç (50-150 kelime)
+  surveyApplied Boolean @default(false) // Anket uygulayacak mı
   isPublic    Boolean  @default(false) // Herkese açık mı
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

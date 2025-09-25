@@ -15,6 +15,7 @@ interface UserInfo {
   purpose: string
   method: string
   expectedResult: string
+  surveyApplied: boolean
   isPublic: boolean
   createdAt: string
   user: {
@@ -152,6 +153,7 @@ export default function AdminPage() {
         purpose: project.purpose,
         method: project.method,
         expectedResult: project.expectedResult,
+        surveyApplied: project.surveyApplied,
         createdAt: project.createdAt,
         updatedAt: project.createdAt
       }
@@ -477,6 +479,21 @@ export default function AdminPage() {
                       </label>
                       <div className="bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 p-3 rounded-lg">
                         <p className="text-gray-900 dark:text-white">{new Date(selectedProject.createdAt).toLocaleString('tr-TR')}</p>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                        Anket Uygulanacak mı?
+                      </label>
+                      <div className="bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 p-3 rounded-lg">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          selectedProject.surveyApplied 
+                            ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' 
+                            : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
+                        }`}>
+                          {selectedProject.surveyApplied ? '✓ Evet' : '✗ Hayır'}
+                        </span>
                       </div>
                     </div>
                   </div>
