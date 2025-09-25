@@ -32,6 +32,9 @@ model User {
 
   // Kullanıcının girdiği bilgiler
   userInfos UserInfo[]
+  
+  // Yüklenen paylaşılan dosyalar
+  sharedFiles SharedFile[]
 
   @@map("users")
 }
@@ -65,4 +68,22 @@ model ProjectSubject {
   updatedAt DateTime @updatedAt
 
   @@map("project_subjects")
+}
+
+model SharedFile {
+  id           String   @id @default(cuid())
+  fileName     String   // Sunucuda kaydedilen dosya adı (uuid + extension)
+  originalName String   // Kullanıcının yüklediği orijinal dosya adı
+  fileType     String   // MIME type (application/pdf, image/png, image/jpeg)
+  fileSize     Int      // Byte cinsinden dosya boyutu
+  description  String?  // Dosya açıklaması (opsiyonel)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // İlişkiler
+  uploadedById String
+  uploadedBy   User     @relation(fields: [uploadedById], references: [id], onDelete: Cascade)
+
+  @@map("shared_files")
 }

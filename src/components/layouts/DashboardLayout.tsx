@@ -150,6 +150,19 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               </>
             )}
             <Link
+              href="/dashboard/shared-files"
+              className={`inline-flex items-center px-4 py-3 text-sm font-medium rounded-t-lg transition-all duration-300 ${
+                pathname === '/dashboard/shared-files'
+                  ? 'text-white bg-gradient-to-r from-purple-600 to-indigo-600 border-b-2 border-purple-500 shadow-lg transform scale-105'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-gradient-to-r hover:from-purple-50 hover:to-indigo-50 dark:hover:from-purple-900/20 dark:hover:to-indigo-900/20 border-b-2 border-transparent hover:border-purple-200 dark:hover:border-purple-800'
+              }`}
+            >
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              </svg>
+              Paylaşılan Dosyalar
+            </Link>
+            <Link
               href="/dashboard/profile"
               className={`inline-flex items-center px-4 py-3 text-sm font-medium rounded-t-lg transition-all duration-300 ${
                 pathname === '/dashboard/profile'

@@ -45,7 +45,7 @@ export default function AdminPage() {
   const router = useRouter()
   
   // Tab state
-  const [activeTab, setActiveTab] = useState<'projects' | 'users'>('projects')
+  const [activeTab, setActiveTab] = useState<'projects' | 'users' | 'files'>('projects')
   
   // Project states
   const [projects, setProjects] = useState<UserInfo[]>([])
@@ -286,6 +286,16 @@ export default function AdminPage() {
                 }`}
               >
                 Üyelik Yönetimi
+              </button>
+              <button
+                onClick={() => setActiveTab('files')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'files'
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
+                }`}
+              >
+                Dosya Yönetimi
               </button>
             </nav>
           </div>
@@ -816,6 +826,34 @@ export default function AdminPage() {
               </div>
             )}
           </>
+        )}
+
+        {/* Files Tab */}
+        {activeTab === 'files' && (
+          <div className="bg-card p-6 rounded-lg border border-gray-200/50 dark:border-gray-700/50">
+            <div className="text-center py-12">
+              <div className="mb-4">
+                <svg className="w-16 h-16 mx-auto text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-foreground mb-2">
+                Dosya Yönetimi
+              </h3>
+              <p className="text-muted-foreground mb-6">
+                Kullanıcılarla paylaşılacak dosyaları detaylı olarak yönetmek için özel sayfayı ziyaret edin.
+              </p>
+              <a
+                href="/admin/files"
+                className="inline-flex items-center px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                </svg>
+                Dosya Yönetimi Sayfasına Git
+              </a>
+            </div>
+          </div>
         )}
       </div>
     </DashboardLayout>
