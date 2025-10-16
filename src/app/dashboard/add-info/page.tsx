@@ -9,7 +9,9 @@ interface FormData {
   title: string
   mainArea: string
   projectType: string
+  projectSubType: string
   subject: string
+  thematicArea: string
   purpose: string
   method: string
   expectedResult: string
@@ -44,24 +46,40 @@ const MAIN_AREAS = [
 
 const PROJECT_TYPES = ['Araştırma', 'Tasarım']
 
+const PROJECT_SUB_TYPES = [
+  { value: '4006-A', label: 'TUBİTAK 4006-A Alt Projesi' },
+  { value: '4006-B', label: 'TUBİTAK 4006-B Alt Projesi' }
+]
+
 function countWords(text: string): number {
   return text.trim().split(/\s+/).filter(word => word.length > 0).length
 }
 
-function getWordCountStyle(count: number): string {
-  if (count >= 50 && count <= 150) {
-    return 'text-green-600 dark:text-green-400'
+function getWordCountStyle(count: number, isA4006: boolean = false): string {
+  if (isA4006) {
+    // 4006-A için amaç: 20-50 kelime
+    if (count >= 20 && count <= 50) {
+      return 'text-green-600 dark:text-green-400'
+    }
+  } else {
+    // 4006-B için amaç ve önem: 50-150 kelime
+    if (count >= 50 && count <= 150) {
+      return 'text-green-600 dark:text-green-400'
+    }
   }
   return 'text-red-600 dark:text-red-400'
 }
 
 export default function AddInfoPage() {
   const router = useRouter()
+  const [projectSubTypeSelected, setProjectSubTypeSelected] = useState<string>('')
   const [formData, setFormData] = useState<FormData>({
     title: '',
     mainArea: '',
     projectType: '',
+    projectSubType: '',
     subject: '',
+    thematicArea: '',
     purpose: '',
     method: '',
     expectedResult: '',
@@ -118,13 +136,24 @@ export default function AddInfoPage() {
       setError('Alt proje türü seçiniz')
       return false
     }
-    if (!formData.subject) {
-      setError('Alt proje konusu seçiniz')
-      return false
-    }
-    if (wordCount.purpose < 50 || wordCount.purpose > 150) {
-      setError('Amaç ve Önem bölümü 50-150 kelime arasında olmalıdır')
-      return false
+    if (projectSubTypeSelected === '4006-A') {
+      if (!formData.thematicArea.trim()) {
+        setError('Tematik alan giriniz')
+        return false
+      }
+      if (wordCount.purpose < 20 || wordCount.purpose > 50) {
+        setError('Amaç bölümü 20-50 kelime arasında olmalıdır')
+        return false
+      }
+    } else {
+      if (!formData.subject) {
+        setError('Alt proje konusu seçiniz')
+        return false
+      }
+      if (wordCount.purpose < 50 || wordCount.purpose > 150) {
+        setError('Amaç ve Önem bölümü 50-150 kelime arasında olmalıdır')
+        return false
+      }
     }
     if (wordCount.method < 50 || wordCount.method > 150) {
       setError('Yöntem bölümü 50-150 kelime arasında olmalıdır')
@@ -213,6 +242,57 @@ export default function AddInfoPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="p-8 space-y-8">
+            {/* Proje Alt Türü Seçimi */}
+            {!projectSubTypeSelected && (
+              <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md border border-gray-100 dark:border-gray-700">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
+                  <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center mr-3">
+                    <svg className="w-4 h-4 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                  </div>
+                  Proje Türü Seçimi
+                </h2>
+                
+                <p className="text-gray-600 dark:text-gray-400 mb-6">
+                  Oluşturmak istediğiniz alt proje türünü seçiniz:
+                </p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {PROJECT_SUB_TYPES.map((subType) => (
+                    <button
+                      key={subType.value}
+                      type="button"
+                      onClick={() => {
+                        setProjectSubTypeSelected(subType.value)
+                        setFormData(prev => ({ ...prev, projectSubType: subType.value }))
+                      }}
+                      className="p-6 border-2 border-gray-200 dark:border-gray-600 rounded-xl hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 text-left group"
+                    >
+                      <div className="flex items-center mb-3">
+                        <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mr-3 group-hover:bg-blue-200 dark:group-hover:bg-blue-800">
+                          <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                        </div>
+                        <h3 className="font-semibold text-gray-900 dark:text-white">
+                          {subType.label}
+                        </h3>
+                      </div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {subType.value === '4006-A' ? 
+                          'Amaç odaklı, tematik alan tabanlı proje formu' : 
+                          'Standart TUBİTAK 4006 proje formu'}
+                      </p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Ana Form - Sadece proje türü seçildikten sonra göster */}
+            {projectSubTypeSelected && (
+              <>
             {/* Temel Bilgiler */}
             <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md border border-gray-100 dark:border-gray-700">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
@@ -222,6 +302,27 @@ export default function AddInfoPage() {
                   </svg>
                 </div>
                 Temel Proje Bilgileri
+                <button
+                  type="button"
+                  onClick={() => {
+                    setProjectSubTypeSelected('')
+                    setFormData({
+                      title: '',
+                      mainArea: '',
+                      projectType: '',
+                      projectSubType: '',
+                      subject: '',
+                      thematicArea: '',
+                      purpose: '',
+                      method: '',
+                      expectedResult: '',
+                      surveyApplied: false
+                    })
+                  }}
+                  className="ml-auto text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                >
+                  Proje Türünü Değiştir
+                </button>
               </h2>
               
               <div className="space-y-6">
@@ -311,10 +412,30 @@ export default function AddInfoPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                   </svg>
                 </div>
-                Proje Konusu
+                {projectSubTypeSelected === '4006-A' ? 'Tematik Alan' : 'Proje Konusu'}
               </h2>
 
-              {/* Alt Proje Konusu */}
+              {/* 4006-A için Tematik Alan (Text Input) */}
+              {projectSubTypeSelected === '4006-A' && (
+                <div>
+                  <label htmlFor="thematicArea" className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                    Tematik Alan *
+                  </label>
+                  <input
+                    type="text"
+                    id="thematicArea"
+                    name="thematicArea"
+                    required
+                    placeholder="Tematik alanı yazınız..."
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-3 focus:ring-green-500/30 focus:border-green-500 transition-all"
+                    value={formData.thematicArea}
+                    onChange={handleChange}
+                  />
+                </div>
+              )}
+
+              {/* 4006-B için Alt Proje Konusu (Dropdown) */}
+              {projectSubTypeSelected === '4006-B' && (
               <div>
                 <label htmlFor="subject" className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
                   Alt Proje Konusu *
@@ -333,6 +454,7 @@ export default function AddInfoPage() {
                   ))}
                 </select>
               </div>
+              )}
             </div>
 
             {/* Anket Sorusu */}
@@ -386,14 +508,14 @@ export default function AddInfoPage() {
               </h2>
 
               <div className="space-y-8">
-                {/* Amaç ve Önem */}
+                {/* Amaç / Amaç ve Önem */}
                 <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-4 border border-blue-200/50 dark:border-blue-800/50">
                   <div className="flex items-center justify-between mb-3">
                     <label htmlFor="purpose" className="block text-sm font-semibold text-blue-900 dark:text-blue-100 flex items-center">
                       <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
-                      Amaç ve Önem * (50-150 kelime)
+                      {projectSubTypeSelected === '4006-A' ? 'Amaç * (20-50 kelime)' : 'Amaç ve Önem * (50-150 kelime)'}
                     </label>
                     {formData.purpose && <CopyButton text={formData.purpose} />}
                   </div>
@@ -401,16 +523,25 @@ export default function AddInfoPage() {
                     id="purpose"
                     name="purpose"
                     required
-                    rows={5}
+                    rows={projectSubTypeSelected === '4006-A' ? 3 : 5}
                     className="w-full px-4 py-3 border border-blue-300 dark:border-blue-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-3 focus:ring-blue-500/30 focus:border-blue-500 transition-all resize-none text-justify"
-                    placeholder="Alt projenizin amacını ve önemini açıklayın..."
+                    placeholder={projectSubTypeSelected === '4006-A' ? 'Alt projenizin amacını açıklayın...' : 'Alt projenizin amacını ve önemini açıklayın...'}
                     value={formData.purpose}
                     onChange={handleChange}
                   />
-                  <div className={`text-xs mt-2 font-medium ${getWordCountStyle(wordCount.purpose)}`}>
+                  <div className={`text-xs mt-2 font-medium ${getWordCountStyle(wordCount.purpose, projectSubTypeSelected === '4006-A')}`}>
                     {wordCount.purpose} kelime
-                    {wordCount.purpose < 50 && ' (En az 50 kelime gerekli)'}
-                    {wordCount.purpose > 150 && ' (En fazla 150 kelime olmalı)'}
+                    {projectSubTypeSelected === '4006-A' ? (
+                      <>
+                        {wordCount.purpose < 20 && ' (En az 20 kelime gerekli)'}
+                        {wordCount.purpose > 50 && ' (En fazla 50 kelime olmalı)'}
+                      </>
+                    ) : (
+                      <>
+                        {wordCount.purpose < 50 && ' (En az 50 kelime gerekli)'}
+                        {wordCount.purpose > 150 && ' (En fazla 150 kelime olmalı)'}
+                      </>
+                    )}
                   </div>
                 </div>
 
@@ -509,6 +640,8 @@ export default function AddInfoPage() {
                 </button>
               </div>
             </div>
+            </>
+            )}
           </form>
         </div>
       </div>
