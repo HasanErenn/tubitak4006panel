@@ -228,6 +228,20 @@ export default function RegisterPage() {
                         Öğretmen
                       </label>
                     </div>
+                    <div className="flex items-center">
+                      <input
+                        id="role-ogrenci"
+                        name="role"
+                        type="radio"
+                        value="OGRENCI"
+                        checked={formData.role === 'OGRENCI'}
+                        onChange={handleChange}
+                        className="h-4 w-4 text-primary focus:ring-primary border-gray-200/50 dark:border-gray-700/50 rounded"
+                      />
+                      <label htmlFor="role-ogrenci" className="ml-3 text-sm font-medium text-foreground">
+                        Öğrenci
+                      </label>
+                    </div>
                   </div>
                 </div>
               </div>

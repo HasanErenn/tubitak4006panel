@@ -28,7 +28,8 @@ interface User {
   id: string
   name: string
   email: string
-  role: 'USER' | 'ADMIN' | 'IDARECI' | 'OGRETMEN'
+  schoolCode: string | null
+  role: 'USER' | 'ADMIN' | 'IDARECI' | 'OGRETMEN' | 'TUBITAK_OKUL_YETKILISI' | 'OGRENCI'
   createdAt: string
   _count: {
     userInfos: number
@@ -37,7 +38,7 @@ interface User {
 
 interface EditUserData {
   name: string
-  role: 'USER' | 'ADMIN' | 'IDARECI' | 'OGRETMEN'
+  role: 'USER' | 'ADMIN' | 'IDARECI' | 'OGRETMEN' | 'TUBITAK_OKUL_YETKILISI' | 'OGRENCI'
 }
 
 export default function AdminPage() {
@@ -72,7 +73,7 @@ export default function AdminPage() {
       return
     }
 
-    if (session.user.role !== 'ADMIN') {
+    if (session.user.role !== 'ADMIN' && (session.user as any).role !== 'TUBITAK_OKUL_YETKILISI') {
       router.push('/dashboard')
       return
     }
@@ -249,7 +250,7 @@ export default function AdminPage() {
     )
   }
 
-  if (!session || session.user.role !== 'ADMIN') {
+  if (!session || (!['ADMIN', 'TUBITAK_OKUL_YETKILISI'].includes((session.user as any).role))) {
     return null
   }
 
@@ -277,16 +278,18 @@ export default function AdminPage() {
               >
                 Alt Projeler
               </button>
-              <button
-                onClick={() => setActiveTab('users')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'users'
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
-                }`}
-              >
-                Üyelik Yönetimi
-              </button>
+              {session.user.role === 'ADMIN' && (
+                <button
+                  onClick={() => setActiveTab('users')}
+                  className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                    activeTab === 'users'
+                      ? 'border-primary text-primary'
+                      : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
+                  }`}
+                >
+                  Üyelik Yönetimi
+                </button>
+              )}
 
               <button
                 onClick={() => router.push('/admin/timeline')}
@@ -669,6 +672,9 @@ export default function AdminPage() {
                         E-posta
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Okul Kodu
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Rol
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
@@ -709,8 +715,10 @@ export default function AdminPage() {
                               >
                                 <option value="USER">USER</option>
                                 <option value="ADMIN">ADMIN</option>
-                                <option value="IDARECI">IDARECI</option>
-                                <option value="OGRETMEN">OGRETMEN</option>
+                                <option value="IDARECI">İdareci</option>
+                                <option value="OGRETMEN">Öğretmen</option>
+                                <option value="TUBITAK_OKUL_YETKILISI">TUBİTAK Okul Yetkilisi</option>
+                                <option value="OGRENCI">Öğrenci</option>
                               </select>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
@@ -749,6 +757,9 @@ export default function AdminPage() {
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
                               {user.email}
                             </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                              {user.schoolCode || '-'}
+                            </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                                 user.role === 'ADMIN'
@@ -757,9 +768,17 @@ export default function AdminPage() {
                                   ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
                                   : user.role === 'OGRETMEN'
                                   ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                                  : user.role === 'TUBITAK_OKUL_YETKILISI'
+                                  ? 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200'
+                                  : user.role === 'OGRENCI'
+                                  ? 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200'
                                   : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
                               }`}>
-                                {user.role}
+                                {user.role === 'TUBITAK_OKUL_YETKILISI' ? 'TUBİTAK Okul Yetkilisi' : 
+                                 user.role === 'OGRENCI' ? 'Öğrenci' :
+                                 user.role === 'IDARECI' ? 'İdareci' :
+                                 user.role === 'OGRETMEN' ? 'Öğretmen' :
+                                 user.role}
                               </span>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">

@@ -76,7 +76,23 @@ npx prisma db push
 
 ## Development vs Production
 
-- **Development**: SQLite database (`prisma/dev.db`)
-- **Production**: PostgreSQL database (Neon)
+- **Development**: SQLite database (`prisma/dev.db`) - **CURRENT SETUP**
+- **Production**: PostgreSQL database (Neon) - when deploying
 
-Environment variables otomatik olarak `.env` dosyasından yüklenir. Production için `.env.example` dosyasına bakın.
+⚠️ **GÜVENLIK**: Geliştirme sırasında yerel SQLite veritabanı kullanılır. Bu sayede production veritabanına yanlışlıkla veri gönderilmez.
+
+### Local Development Setup
+
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Setup local database: `npx prisma db push`
+4. Seed initial data: `node prisma/seed.js`
+5. Start development server: `npm run dev`
+
+### Production Deployment
+
+1. Update `prisma/schema.prisma` provider to `postgresql`
+2. Set production environment variables in Vercel
+3. Run: `npx prisma db push`
+
+Environment variables otomatik olarak `.env.local` (development) dosyasından yüklenir.

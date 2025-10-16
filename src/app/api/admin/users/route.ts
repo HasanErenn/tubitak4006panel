@@ -7,7 +7,7 @@ import { Role } from '@prisma/client'
 
 const updateUserSchema = z.object({
   name: z.string().min(2, 'Ad en az 2 karakter olmalıdır'),
-  role: z.enum(['USER', 'ADMIN']),
+  role: z.enum(['USER', 'ADMIN', 'IDARECI', 'OGRETMEN', 'TUBITAK_OKUL_YETKILISI', 'OGRENCI']),
 })
 
 export async function GET(request: NextRequest) {
@@ -21,11 +21,12 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const users = await prisma.user.findMany({
+    const users = await (prisma.user as any).findMany({
       select: {
         id: true,
         name: true,
         email: true,
+        schoolCode: true,
         role: true,
         createdAt: true,
         _count: {
@@ -74,7 +75,7 @@ export async function PUT(request: NextRequest) {
     const body = await request.json()
     const validatedData = updateUserSchema.parse(body)
 
-    const updatedUser = await prisma.user.update({
+    const updatedUser = await (prisma.user as any).update({
       where: { id: userId },
       data: {
         name: validatedData.name,
@@ -84,6 +85,7 @@ export async function PUT(request: NextRequest) {
         id: true,
         name: true,
         email: true,
+        schoolCode: true,
         role: true,
         createdAt: true,
       },

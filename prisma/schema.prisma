@@ -9,9 +9,8 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
 enum Role {
@@ -19,6 +18,8 @@ enum Role {
   ADMIN
   IDARECI
   OGRETMEN
+  TUBITAK_OKUL_YETKILISI
+  OGRENCI
 }
 
 model User {

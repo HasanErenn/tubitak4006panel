@@ -8,7 +8,7 @@ const registerSchema = z.object({
   email: z.string().email('Geçerli bir e-posta adresi giriniz'),
   password: z.string().min(6, 'Şifre en az 6 karakter olmalıdır'),
   schoolCode: z.string().regex(/^\d+$/, 'Okul kodu sadece rakamlardan oluşmalıdır').min(1, 'Okul kodu zorunludur'),
-  role: z.enum(['IDARECI', 'OGRETMEN']),
+  role: z.enum(['IDARECI', 'OGRETMEN', 'OGRENCI']),
 })
 
 export async function POST(request: NextRequest) {
@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
         email,
         password: hashedPassword,
         schoolCode,
-        role: role as 'USER' | 'ADMIN' | 'IDARECI' | 'OGRETMEN',
+        role: role as 'USER' | 'ADMIN' | 'IDARECI' | 'OGRETMEN' | 'TUBITAK_OKUL_YETKILISI' | 'OGRENCI',
       },
       select: {
         id: true,
