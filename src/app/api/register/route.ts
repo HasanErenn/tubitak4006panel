@@ -7,13 +7,14 @@ const registerSchema = z.object({
   name: z.string().min(2, 'Ad en az 2 karakter olmalıdır'),
   email: z.string().email('Geçerli bir e-posta adresi giriniz'),
   password: z.string().min(6, 'Şifre en az 6 karakter olmalıdır'),
+  schoolCode: z.string().regex(/^\d+$/, 'Okul kodu sadece rakamlardan oluşmalıdır').min(1, 'Okul kodu zorunludur'),
   role: z.enum(['IDARECI', 'OGRETMEN']),
 })
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { name, email, password, role } = registerSchema.parse(body)
+    const { name, email, password, schoolCode, role } = registerSchema.parse(body)
 
     // Kullanıcının zaten var olup olmadığını kontrol et
     const existingUser = await prisma.user.findUnique({
@@ -31,11 +32,12 @@ export async function POST(request: NextRequest) {
     const hashedPassword = await bcrypt.hash(password, 12)
 
     // Yeni kullanıcı oluştur
-    const user = await prisma.user.create({
+    const user = await (prisma.user as any).create({
       data: {
         name,
         email,
         password: hashedPassword,
+        schoolCode,
         role: role as 'USER' | 'ADMIN' | 'IDARECI' | 'OGRETMEN',
       },
       select: {

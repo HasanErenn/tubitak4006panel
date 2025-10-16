@@ -16,12 +16,20 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { name, email, currentPassword, newPassword } = body
+    const { name, email, schoolCode, currentPassword, newPassword } = body
 
     // Validasyon
-    if (!name || !email) {
+    if (!name || !email || !schoolCode) {
       return NextResponse.json(
-        { error: 'Ad ve email alanları gereklidir' },
+        { error: 'Ad, email ve okul kodu alanları gereklidir' },
+        { status: 400 }
+      )
+    }
+
+    // Okul kodu sadece rakam kontrolü
+    if (!/^\d+$/.test(schoolCode)) {
+      return NextResponse.json(
+        { error: 'Okul kodu sadece rakamlardan oluşmalıdır' },
         { status: 400 }
       )
     }
@@ -92,11 +100,12 @@ export async function PUT(request: NextRequest) {
     }
 
     // Kullanıcı bilgilerini güncelle
-    const updatedUser = await prisma.user.update({
+    const updatedUser = await (prisma.user as any).update({
       where: { id: user.id },
       data: {
         name,
         email,
+        schoolCode,
         password: hashedNewPassword,
         updatedAt: new Date()
       },
@@ -104,6 +113,7 @@ export async function PUT(request: NextRequest) {
         id: true,
         name: true,
         email: true,
+        schoolCode: true,
         role: true,
         createdAt: true,
         updatedAt: true
@@ -136,12 +146,13 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const user = await prisma.user.findUnique({
+    const user = await (prisma.user as any).findUnique({
       where: { email: session.user.email },
       select: {
         id: true,
         name: true,
         email: true,
+        schoolCode: true,
         role: true,
         createdAt: true,
         updatedAt: true

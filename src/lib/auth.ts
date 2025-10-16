@@ -40,6 +40,7 @@ export const authOptions: NextAuthOptions = {
           id: user.id,
           email: user.email,
           name: user.name,
+          schoolCode: (user as any).schoolCode,
           role: user.role,
         }
       }
@@ -54,12 +55,14 @@ export const authOptions: NextAuthOptions = {
         token.role = user.role
         token.name = user.name
         token.email = user.email
+        token.schoolCode = (user as any).schoolCode
       }
       
       // Profile güncelleme durumu
       if (trigger === "update" && session) {
         token.name = session.name || token.name
         token.email = session.email || token.email
+        token.schoolCode = (session as any).schoolCode || token.schoolCode
       }
       
       return token
@@ -70,6 +73,7 @@ export const authOptions: NextAuthOptions = {
         session.user.role = token.role as Role
         session.user.name = token.name as string
         session.user.email = token.email as string
+        ;(session.user as any).schoolCode = token.schoolCode as string
       }
       return session
     },

@@ -7,6 +7,7 @@ import DashboardLayout from '@/components/layouts/DashboardLayout'
 interface UserProfile {
   name: string
   email: string
+  schoolCode: string
   currentPassword: string
   newPassword: string
   confirmPassword: string
@@ -20,6 +21,7 @@ export default function ProfilePage() {
   const [formData, setFormData] = useState<UserProfile>({
     name: '',
     email: '',
+    schoolCode: '',
     currentPassword: '',
     newPassword: '',
     confirmPassword: ''
@@ -30,7 +32,8 @@ export default function ProfilePage() {
       setFormData(prev => ({
         ...prev,
         name: session.user.name || '',
-        email: session.user.email || ''
+        email: session.user.email || '',
+        schoolCode: (session.user as any).schoolCode || ''
       }))
     }
   }, [session?.user?.name, session?.user?.email])
@@ -72,11 +75,13 @@ export default function ProfilePage() {
       const updateData: {
         name: string;
         email: string;
+        schoolCode: string;
         currentPassword?: string;
         newPassword?: string;
       } = {
         name: formData.name,
-        email: formData.email
+        email: formData.email,
+        schoolCode: formData.schoolCode
       }
 
       // Şifre değişikliği varsa ekle
@@ -206,6 +211,22 @@ export default function ProfilePage() {
                 required
                 className="w-full px-4 py-3 border border-blue-200 dark:border-blue-800 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/50 dark:bg-gray-900/50 text-blue-900 dark:text-blue-100"
                 placeholder="E-posta adresinizi girin"
+              />
+            </div>
+            <div>
+              <label htmlFor="schoolCode" className="block text-sm font-medium mb-2 text-blue-800 dark:text-blue-200">
+                Okul Kodu
+              </label>
+              <input
+                type="text"
+                id="schoolCode"
+                name="schoolCode"
+                value={formData.schoolCode}
+                onChange={handleInputChange}
+                pattern="[0-9]*"
+                required
+                className="w-full px-4 py-3 border border-blue-200 dark:border-blue-800 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/50 dark:bg-gray-900/50 text-blue-900 dark:text-blue-100"
+                placeholder="Okul kodunuzu girin (sadece rakamlar)"
               />
             </div>
           </div>

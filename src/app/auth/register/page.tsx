@@ -10,6 +10,7 @@ interface FormData {
   email: string
   password: string
   confirmPassword: string
+  schoolCode: string
   role: string
 }
 
@@ -20,6 +21,7 @@ export default function RegisterPage() {
     email: '',
     password: '',
     confirmPassword: '',
+    schoolCode: '',
     role: 'IDARECI'
   })
   const [loading, setLoading] = useState(false)
@@ -46,6 +48,7 @@ export default function RegisterPage() {
           name: formData.name,
           email: formData.email,
           password: formData.password,
+          schoolCode: formData.schoolCode,
           role: formData.role,
         }),
       })
@@ -139,6 +142,23 @@ export default function RegisterPage() {
                     className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-200/50 dark:border-gray-700/50 placeholder-muted-foreground text-foreground rounded-md focus:outline-none focus:ring-primary focus:border-primary bg-background sm:text-sm"
                     placeholder="E-posta adresinizi girin"
                     value={formData.email}
+                    onChange={handleChange}
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="schoolCode" className="block text-sm font-medium text-foreground">
+                    Okul Kodu
+                  </label>
+                  <input
+                    id="schoolCode"
+                    name="schoolCode"
+                    type="text"
+                    required
+                    pattern="[0-9]*"
+                    className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-200/50 dark:border-gray-700/50 placeholder-muted-foreground text-foreground rounded-md focus:outline-none focus:ring-primary focus:border-primary bg-background sm:text-sm"
+                    placeholder="Okul kodunuzu girin (sadece rakamlar)"
+                    value={formData.schoolCode}
                     onChange={handleChange}
                   />
                 </div>
