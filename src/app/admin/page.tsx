@@ -11,7 +11,9 @@ interface UserInfo {
   title: string
   mainArea: string
   projectType: string
-  subject: string
+  projectSubType: string
+  subject: string | null
+  thematicArea: string | null
   purpose: string
   method: string
   expectedResult: string
@@ -150,23 +152,23 @@ export default function AdminPage() {
         title: project.title,
         mainArea: project.mainArea,
         projectType: project.projectType,
+        projectSubType: project.projectSubType || '4006-B',
         subject: project.subject,
+        thematicArea: project.thematicArea,
         purpose: project.purpose,
         method: project.method,
         expectedResult: project.expectedResult,
         surveyApplied: project.surveyApplied,
+        isPublic: project.isPublic || false,
         createdAt: project.createdAt,
-        updatedAt: project.createdAt
-      }
-
-      const user = {
-        id: '',
-        name: project.user.name,
-        email: project.user.email
+        user: {
+          name: project.user.name,
+          email: project.user.email
+        }
       }
 
       // PDF'i indir
-      await exportToPDF(userInfo, user)
+      await exportToPDF(userInfo)
     } catch (error) {
       console.error('PDF indirme hatası:', error)
       alert('PDF indirme sırasında bir hata oluştu.')
@@ -472,14 +474,19 @@ export default function AdminPage() {
                     
                     <div>
                       <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
-                        Alt Proje Konusu
+                        {selectedProject.projectSubType === '4006-A' ? 'Tematik Alan' : 'Alt Proje Konusu'}
                       </label>
                       <div 
                         className="bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 p-3 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                        onClick={() => copyToClipboard(selectedProject.subject, 'Alt Proje Konusu')}
+                        onClick={() => copyToClipboard(
+                          selectedProject.projectSubType === '4006-A' ? selectedProject.thematicArea || '' : selectedProject.subject || '', 
+                          selectedProject.projectSubType === '4006-A' ? 'Tematik Alan' : 'Alt Proje Konusu'
+                        )}
                         title="Kopyalamak için tıklayın"
                       >
-                        <p className="text-gray-900 dark:text-white">{selectedProject.subject}</p>
+                        <p className="text-gray-900 dark:text-white">
+                          {selectedProject.projectSubType === '4006-A' ? selectedProject.thematicArea : selectedProject.subject}
+                        </p>
                       </div>
                     </div>
                     

@@ -30,7 +30,9 @@ interface UserInfo {
   title: string
   mainArea: string
   projectType: string
-  subject: string
+  projectSubType: string
+  subject: string | null
+  thematicArea: string | null
   purpose: string
   method: string
   expectedResult: string
@@ -45,7 +47,9 @@ interface EditFormData {
   title: string
   mainArea: string
   projectType: string
-  subject: string
+  projectSubType: string
+  subject: string | null
+  thematicArea: string | null
   purpose: string
   method: string
   expectedResult: string
@@ -62,8 +66,16 @@ function countWords(text: string): number {
   return text.trim().split(/\s+/).filter(word => word.length > 0).length
 }
 
-function getWordCountStyle(count: number): string {
-  if (count >= 50 && count <= 150) {
+function getWordCountStyle(count: number, range?: string): string {
+  let minWords = 50, maxWords = 150;
+  
+  if (range) {
+    const [min, max] = range.split('-').map(num => parseInt(num));
+    minWords = min;
+    maxWords = max;
+  }
+  
+  if (count >= minWords && count <= maxWords) {
     return 'text-green-600 dark:text-green-400'
   }
   return 'text-red-600 dark:text-red-400'
@@ -87,7 +99,9 @@ export default function MyInfoPage() {
     title: '',
     mainArea: '',
     projectType: '',
+    projectSubType: '4006-B',
     subject: '',
+    thematicArea: '',
     purpose: '',
     method: '',
     expectedResult: '',
@@ -148,7 +162,9 @@ export default function MyInfoPage() {
       title: info.title,
       mainArea: info.mainArea,
       projectType: info.projectType,
-      subject: info.subject,
+      projectSubType: info.projectSubType,
+      subject: info.subject || '',
+      thematicArea: info.thematicArea || '',
       purpose: info.purpose,
       method: info.method,
       expectedResult: info.expectedResult,
@@ -162,7 +178,9 @@ export default function MyInfoPage() {
       title: '',
       mainArea: '',
       projectType: '',
+      projectSubType: '4006-B',
       subject: '',
+      thematicArea: '',
       purpose: '',
       method: '',
       expectedResult: '',
@@ -183,14 +201,33 @@ export default function MyInfoPage() {
       setError('Alt proje türü seçiniz')
       return false
     }
-    if (!editForm.subject) {
-      setError('Alt proje konusu seçiniz')
-      return false
+
+    // 4006-A ve 4006-B için farklı konu validasyonları
+    if (editForm.projectSubType === '4006-A') {
+      if (!editForm.thematicArea?.trim()) {
+        setError('Tematik alan gereklidir')
+        return false
+      }
+    } else {
+      if (!editForm.subject) {
+        setError('Alt proje konusu seçiniz')
+        return false
+      }
     }
-    if (wordCount.purpose < 50 || wordCount.purpose > 150) {
-      setError('Amaç ve Önem bölümü 50-150 kelime arasında olmalıdır')
-      return false
+
+    // 4006-A için farklı kelime limitleri
+    if (editForm.projectSubType === '4006-A') {
+      if (wordCount.purpose < 20 || wordCount.purpose > 50) {
+        setError('Amaç ve Önem bölümü 20-50 kelime arasında olmalıdır')
+        return false
+      }
+    } else {
+      if (wordCount.purpose < 50 || wordCount.purpose > 150) {
+        setError('Amaç ve Önem bölümü 50-150 kelime arasında olmalıdır')
+        return false
+      }
     }
+
     if (wordCount.method < 50 || wordCount.method > 150) {
       setError('Yöntem bölümü 50-150 kelime arasında olmalıdır')
       return false
@@ -208,13 +245,22 @@ export default function MyInfoPage() {
     }
 
     try {
+      // Veriyi API için hazırla
+      const dataToSend = {
+        ...editForm,
+        // 4006-A için subject null, 4006-B için thematicArea null olmalı
+        subject: editForm.projectSubType === '4006-A' ? null : (editForm.subject || null),
+        thematicArea: editForm.projectSubType === '4006-B' ? null : (editForm.thematicArea || null)
+      }
+      
+      console.log('Gönderilen veri:', dataToSend)
 
       const response = await fetch(`/api/user-info/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(editForm),
+        body: JSON.stringify(dataToSend),
       })
 
       if (response.ok) {
@@ -223,9 +269,17 @@ export default function MyInfoPage() {
         setError('') // Clear any previous errors
       } else {
         const data = await response.json()
-        setError(data.error || 'Güncelleme başarısız')
+        console.error('Güncelleme hatası:', data)
+        
+        // Detaylı hata mesajı göster
+        if (data.error && Array.isArray(data.error)) {
+          setError(data.error.map((err: any) => err.message).join(', '))
+        } else {
+          setError(data.error || 'Güncelleme başarısız')
+        }
       }
     } catch (err) {
+      console.error('Güncelleme exception:', err)
       setError('Güncelleme sırasında hata oluştu')
     }
   }
@@ -260,11 +314,15 @@ export default function MyInfoPage() {
     
     setPdfLoading(userInfo.id)
     try {
-      const result = await exportToPDF(userInfo, {
-        id: session.user.id,
-        name: session.user.name || '',
-        email: session.user.email || ''
-      })
+      const pdfUserInfo = {
+        ...userInfo,
+        user: {
+          name: session.user.name || '',
+          email: session.user.email || ''
+        }
+      }
+      
+      const result = await exportToPDF(pdfUserInfo)
       
       if (result.success) {
         // Success feedback could be added here
@@ -375,19 +433,30 @@ export default function MyInfoPage() {
                             </div>
                             <div>
                               <label className="block text-sm font-medium mb-2 text-blue-800 dark:text-blue-200">
-                                Konu
+                                {editForm.projectSubType === '4006-A' ? 'Tematik Alan' : 'Konu'}
                               </label>
-                              <select
-                                name="subject"
-                                value={editForm.subject}
-                                onChange={handleEditChange}
-                                className="w-full px-4 py-3 border border-blue-200 dark:border-blue-800 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/50 dark:bg-gray-900/50 text-blue-900 dark:text-blue-100"
-                              >
-                                <option value="">Konu seçiniz</option>
-                                {subjects.map(subject => (
-                                  <option key={subject.id} value={subject.name}>{subject.name}</option>
-                                ))}
-                              </select>
+                              {editForm.projectSubType === '4006-A' ? (
+                                <input
+                                  type="text"
+                                  name="thematicArea"
+                                  value={editForm.thematicArea || ''}
+                                  onChange={handleEditChange}
+                                  placeholder="Tematik alanı yazınız..."
+                                  className="w-full px-4 py-3 border border-blue-200 dark:border-blue-800 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/50 dark:bg-gray-900/50 text-blue-900 dark:text-blue-100"
+                                />
+                              ) : (
+                                <select
+                                  name="subject"
+                                  value={editForm.subject || ''}
+                                  onChange={handleEditChange}
+                                  className="w-full px-4 py-3 border border-blue-200 dark:border-blue-800 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/50 dark:bg-gray-900/50 text-blue-900 dark:text-blue-100"
+                                >
+                                  <option value="">Konu seçiniz</option>
+                                  {subjects.map(subject => (
+                                    <option key={subject.id} value={subject.name}>{subject.name}</option>
+                                  ))}
+                                </select>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -428,7 +497,7 @@ export default function MyInfoPage() {
                                 className="w-full px-4 py-3 border border-purple-200 dark:border-purple-800 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white/50 dark:bg-gray-900/50 text-purple-900 dark:text-purple-100"
                               >
                                 <option value="">Tür seçiniz</option>
-                                {PROJECT_TYPES.map(type => (
+                                {(editForm.projectSubType === '4006-A' ? [...PROJECT_TYPES, 'İnceleme'] : PROJECT_TYPES).map(type => (
                                   <option key={type} value={type}>{type}</option>
                                 ))}
                               </select>
@@ -451,8 +520,8 @@ export default function MyInfoPage() {
                                   <label className="block text-sm font-medium text-orange-800 dark:text-orange-200">
                                     Amaç ve Önem
                                   </label>
-                                  <span className={`text-xs ${getWordCountStyle(wordCount.purpose)}`}>
-                                    ({wordCount.purpose} kelime - 50-150 arası olmalı)
+                                  <span className={`text-xs ${getWordCountStyle(wordCount.purpose, editForm.projectSubType === '4006-A' ? '20-50' : '50-150')}`}>
+                                    ({wordCount.purpose} kelime - {editForm.projectSubType === '4006-A' ? '20-50' : '50-150'} arası olmalı)
                                   </span>
                                 </div>
                                 {editForm.purpose && <CopyButton text={editForm.purpose} />}
@@ -582,9 +651,16 @@ export default function MyInfoPage() {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                               </svg>
                             </div>
-                            <h3 className="text-xl font-bold select-text cursor-text">
-                              {info.title}
-                            </h3>
+                            <div className="flex-1">
+                              <h3 className="text-xl font-bold select-text cursor-text">
+                                {info.title}
+                              </h3>
+                              <div className="flex items-center mt-1">
+                                <span className="text-sm bg-white/30 px-3 py-1 rounded-full font-semibold">
+                                  TUBİTAK {info.projectSubType}
+                                </span>
+                              </div>
+                            </div>
                           </div>
                           <div className="grid grid-cols-2 gap-4 text-sm text-indigo-100 select-text cursor-text">
                             <div className="flex items-center">
@@ -596,8 +672,12 @@ export default function MyInfoPage() {
                               <span className="ml-2 bg-white/20 px-2 py-1 rounded">{info.projectType}</span>
                             </div>
                             <div className="flex items-center">
-                              <span className="font-medium">Konu:</span>
-                              <span className="ml-2 bg-white/20 px-2 py-1 rounded truncate">{info.subject}</span>
+                              <span className="font-medium">
+                                {info.projectSubType === '4006-A' ? 'Tematik Alan:' : 'Konu:'}
+                              </span>
+                              <span className="ml-2 bg-white/20 px-2 py-1 rounded truncate">
+                                {info.projectSubType === '4006-A' ? info.thematicArea : info.subject}
+                              </span>
                             </div>
                             <div className="flex items-center">
                               <span className="font-medium">Anket:</span>
@@ -662,7 +742,7 @@ export default function MyInfoPage() {
                                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                Amaç ve Önem
+                                {info.projectSubType === '4006-A' ? 'Amaç' : 'Amaç ve Önem'}
                               </h4>
                               <span className="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-800 text-blue-700 dark:text-blue-200 rounded-full font-medium">
                                 {countWords(info.purpose)} kelime

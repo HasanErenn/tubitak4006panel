@@ -45,6 +45,7 @@ const MAIN_AREAS = [
 ]
 
 const PROJECT_TYPES = ['Araştırma', 'Tasarım']
+const PROJECT_TYPES_4006_A = ['Araştırma', 'Tasarım', 'İnceleme']
 
 const PROJECT_SUB_TYPES = [
   { value: '4006-A', label: 'TUBİTAK 4006-A Alt Projesi' },
@@ -230,7 +231,7 @@ export default function AddInfoPage() {
 
   return (
     <DashboardLayout>
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         <div className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden">
           <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-8 text-white">
             <h1 className="text-3xl font-bold mb-2">
@@ -382,8 +383,8 @@ export default function AddInfoPage() {
                   <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
                     Alt Proje Türü *
                   </label>
-                  <div className="grid grid-cols-2 gap-3">
-                    {PROJECT_TYPES.map(type => (
+                  <div className={`grid gap-3 ${projectSubTypeSelected === '4006-A' ? 'grid-cols-3' : 'grid-cols-2'}`}>
+                    {(projectSubTypeSelected === '4006-A' ? PROJECT_TYPES_4006_A : PROJECT_TYPES).map(type => (
                       <div key={type} className="flex items-center p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors border-2 border-transparent has-[:checked]:border-purple-500 has-[:checked]:bg-purple-50 dark:has-[:checked]:bg-purple-900/20">
                         <input
                           type="radio"

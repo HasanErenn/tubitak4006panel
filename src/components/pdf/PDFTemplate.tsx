@@ -9,23 +9,23 @@ interface UserInfo {
   title: string
   mainArea: string
   projectType: string
-  subject: string
+  projectSubType: string
+  subject: string | null
+  thematicArea: string | null
   purpose: string
   method: string
   expectedResult: string
   surveyApplied: boolean
+  isPublic: boolean
   createdAt: string
-  updatedAt: string
-}
-
-interface User {
-  id: string
-  name: string
-  email: string
+  user: {
+    name: string
+    email: string
+  }
 }
 
 // HTML to PDF Export Function - Original approach with optimizations
-export const exportToPDF = async (userInfo: UserInfo, user: User) => {
+export const exportToPDF = async (userInfo: UserInfo) => {
   try {
     // PDF içeriği için geçici div oluştur
     const tempDiv = document.createElement('div')
@@ -86,7 +86,7 @@ export const exportToPDF = async (userInfo: UserInfo, user: User) => {
                   Başvuru Sahibi:
                 </td>
                 <td style="border: 1px solid #000; padding: 12px;">
-                  ${user.name || 'Belirtilmedi'}
+                  ${userInfo.user.name || 'Belirtilmedi'}
                 </td>
               </tr>
 
@@ -110,6 +110,15 @@ export const exportToPDF = async (userInfo: UserInfo, user: User) => {
               
               <tr>
                 <td style="border: 1px solid #000; padding: 12px; font-weight: bold; background: #f0f0f0;">
+                  Proje Tipi:
+                </td>
+                <td style="border: 1px solid #000; padding: 12px;">
+                  <strong style="color: #1d4ed8;">TUBİTAK ${userInfo.projectSubType || '4006-B'}</strong>
+                </td>
+              </tr>
+              
+              <tr>
+                <td style="border: 1px solid #000; padding: 12px; font-weight: bold; background: #f0f0f0;">
                   Alt Proje Türü:
                 </td>
                 <td style="border: 1px solid #000; padding: 12px;">
@@ -119,10 +128,12 @@ export const exportToPDF = async (userInfo: UserInfo, user: User) => {
               
               <tr>
                 <td style="border: 1px solid #000; padding: 12px; font-weight: bold; background: #f0f0f0;">
-                  Alt Proje Konusu:
+                  ${userInfo.projectSubType === '4006-A' ? 'Tematik Alan:' : 'Alt Proje Konusu:'}
                 </td>
                 <td style="border: 1px solid #000; padding: 12px;">
-                  ${userInfo.subject || 'Belirtilmedi'}
+                  ${userInfo.projectSubType === '4006-A' ? 
+                    (userInfo.thematicArea || 'Belirtilmedi') : 
+                    (userInfo.subject || 'Belirtilmedi')}
                 </td>
               </tr>
               
@@ -139,7 +150,7 @@ export const exportToPDF = async (userInfo: UserInfo, user: User) => {
               
               <tr>
                 <td style="border: 1px solid #000; padding: 12px; font-weight: bold; background: #f0f0f0; vertical-align: top;">
-                  Amaç ve Önem:
+                  ${userInfo.projectSubType === '4006-A' ? 'Amaç:' : 'Amaç ve Önem:'}
                 </td>
                 <td style="border: 1px solid #000; padding: 12px;">
                   <div style="white-space: pre-wrap; min-height: 100px; line-height: 1.5;">
@@ -235,7 +246,7 @@ export const exportToPDF = async (userInfo: UserInfo, user: User) => {
 }
 
 // PDF Template React Component (preview için)
-const PDFTemplate: React.FC<{ userInfo: UserInfo; user: User }> = ({ userInfo, user }) => {
+const PDFTemplate: React.FC<{ userInfo: UserInfo }> = ({ userInfo }) => {
   return (
     <div className="bg-white p-8 min-h-screen font-sans text-sm flex flex-col items-center">
       <style dangerouslySetInnerHTML={{
@@ -329,10 +340,12 @@ const PDFTemplate: React.FC<{ userInfo: UserInfo; user: User }> = ({ userInfo, u
             
             <tr>
               <td className="border border-black p-3 font-semibold bg-gray-100">
-                Alt Proje Konusu:
+                {userInfo.projectSubType === '4006-A' ? 'Tematik Alan:' : 'Alt Proje Konusu:'}
               </td>
               <td className="border border-black p-3">
-                {userInfo.subject || 'Belirtilmedi'}
+                {userInfo.projectSubType === '4006-A' ? 
+                  (userInfo.thematicArea || 'Belirtilmedi') : 
+                  (userInfo.subject || 'Belirtilmedi')}
               </td>
             </tr>
             
@@ -385,7 +398,7 @@ const PDFTemplate: React.FC<{ userInfo: UserInfo; user: User }> = ({ userInfo, u
                 Başvuru Sahibi:
               </td>
               <td className="border border-black p-3">
-                {user.name || 'Belirtilmedi'}
+                {userInfo.user.name || 'Belirtilmedi'}
               </td>
             </tr>
 
@@ -394,7 +407,7 @@ const PDFTemplate: React.FC<{ userInfo: UserInfo; user: User }> = ({ userInfo, u
                 E-posta:
               </td>
               <td className="border border-black p-3">
-                {user.email || 'Belirtilmedi'}
+                {userInfo.user.email || 'Belirtilmedi'}
               </td>
             </tr>
 
@@ -412,7 +425,7 @@ const PDFTemplate: React.FC<{ userInfo: UserInfo; user: User }> = ({ userInfo, u
                 Son Güncelleme:
               </td>
               <td className="border border-black p-3">
-                {new Date(userInfo.updatedAt).toLocaleDateString('tr-TR')}
+                {new Date(userInfo.createdAt).toLocaleDateString('tr-TR')}
               </td>
             </tr>
           </tbody>

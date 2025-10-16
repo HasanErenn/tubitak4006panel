@@ -9,40 +9,53 @@ const userInfoSchema = z.object({
   mainArea: z.string().min(1, 'Ana alan seçimi gereklidir'),
   projectType: z.string().min(1, 'Proje türü seçimi gereklidir'),
   projectSubType: z.string().min(1, 'Proje alt türü gereklidir'),
-  subject: z.string().optional(),
-  thematicArea: z.string().optional(),
-  purpose: z.string().min(20, 'Amaç en az 20 kelime olmalıdır').max(1500, 'Amaç en fazla 150 kelime olmalıdır'),
-  method: z.string().min(50, 'Yöntem en az 50 kelime olmalıdır').max(1500, 'Yöntem en fazla 150 kelime olmalıdır'),
-  expectedResult: z.string().min(50, 'Beklenen sonuç en az 50 kelime olmalıdır').max(1500, 'Beklenen sonuç en fazla 150 kelime olmalıdır'),
+  subject: z.string().nullable().optional(),
+  thematicArea: z.string().nullable().optional(),
+  purpose: z.string().min(1, 'Amaç gereklidir'),
+  method: z.string().min(1, 'Yöntem gereklidir'),
+  expectedResult: z.string().min(1, 'Beklenen sonuç gereklidir'),
   surveyApplied: z.boolean(),
 }).refine((data) => {
   // 4006-A için tematik alan gerekli
   if (data.projectSubType === '4006-A') {
-    return data.thematicArea && data.thematicArea.trim().length > 0
+    return data.thematicArea && typeof data.thematicArea === 'string' && data.thematicArea.trim().length > 0
   }
   // 4006-B için subject gerekli
   if (data.projectSubType === '4006-B') {
-    return data.subject && data.subject.trim().length > 0
+    return data.subject && typeof data.subject === 'string' && data.subject.trim().length > 0
   }
   return true
 }, {
   message: 'Proje türüne göre gerekli alanları doldurun',
   path: ['projectSubType']
 }).refine((data) => {
-  // 4006-A için amaç 20-50 kelime
+  // Amaç kelime sayısı kontrolü
+  const purposeWordCount = data.purpose.trim().split(/\s+/).filter(word => word.length > 0).length
+  
   if (data.projectSubType === '4006-A') {
-    const wordCount = data.purpose.trim().split(/\s+/).length
-    return wordCount >= 20 && wordCount <= 50
+    return purposeWordCount >= 20 && purposeWordCount <= 50
   }
-  // 4006-B için amaç 50-150 kelime
   if (data.projectSubType === '4006-B') {
-    const wordCount = data.purpose.trim().split(/\s+/).length
-    return wordCount >= 50 && wordCount <= 150
+    return purposeWordCount >= 50 && purposeWordCount <= 150
   }
   return true
 }, {
   message: 'Amaç kelime sayısı proje türüne uygun değil',
   path: ['purpose']
+}).refine((data) => {
+  // Yöntem kelime sayısı kontrolü
+  const methodWordCount = data.method.trim().split(/\s+/).filter(word => word.length > 0).length
+  return methodWordCount >= 50 && methodWordCount <= 150
+}, {
+  message: 'Yöntem 50-150 kelime arasında olmalıdır',
+  path: ['method']
+}).refine((data) => {
+  // Beklenen sonuç kelime sayısı kontrolü
+  const expectedResultWordCount = data.expectedResult.trim().split(/\s+/).filter(word => word.length > 0).length
+  return expectedResultWordCount >= 50 && expectedResultWordCount <= 150
+}, {
+  message: 'Beklenen sonuç 50-150 kelime arasında olmalıdır',
+  path: ['expectedResult']
 })
 
 export async function POST(request: NextRequest) {
