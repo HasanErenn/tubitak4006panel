@@ -58,11 +58,22 @@ export const authOptions: NextAuthOptions = {
         token.schoolCode = (user as any).schoolCode
       }
       
-      // Profile güncelleme durumu
-      if (trigger === "update" && session) {
-        token.name = session.name || token.name
-        token.email = session.email || token.email
-        token.schoolCode = (session as any).schoolCode || token.schoolCode
+      // Profile güncelleme durumu - veritabanından güncel bilgileri çek
+      if (trigger === "update" && token.email) {
+        const updatedUser = await (prisma.user as any).findUnique({
+          where: { email: token.email as string },
+          select: {
+            name: true,
+            email: true,
+            schoolCode: true
+          }
+        })
+        
+        if (updatedUser) {
+          token.name = updatedUser.name
+          token.email = updatedUser.email
+          token.schoolCode = updatedUser.schoolCode
+        }
       }
       
       return token

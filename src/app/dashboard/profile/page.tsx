@@ -36,7 +36,7 @@ export default function ProfilePage() {
         schoolCode: (session.user as any).schoolCode || ''
       }))
     }
-  }, [session?.user?.name, session?.user?.email])
+  }, [session?.user])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -109,7 +109,8 @@ export default function ProfilePage() {
       // Session'ı güncelle - NextAuth update işlemi
       await update({
         name: formData.name,
-        email: formData.email
+        email: formData.email,
+        schoolCode: formData.schoolCode
       })
       
       // Şifre alanlarını temizle
@@ -224,7 +225,6 @@ export default function ProfilePage() {
                 value={formData.schoolCode}
                 onChange={handleInputChange}
                 pattern="[0-9]*"
-                required
                 className="w-full px-4 py-3 border border-blue-200 dark:border-blue-800 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/50 dark:bg-gray-900/50 text-blue-900 dark:text-blue-100"
                 placeholder="Okul kodunuzu girin (sadece rakamlar)"
               />

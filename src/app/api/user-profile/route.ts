@@ -19,15 +19,15 @@ export async function PUT(request: NextRequest) {
     const { name, email, schoolCode, currentPassword, newPassword } = body
 
     // Validasyon
-    if (!name || !email || !schoolCode) {
+    if (!name || !email) {
       return NextResponse.json(
-        { error: 'Ad, email ve okul kodu alanları gereklidir' },
+        { error: 'Ad ve email alanları gereklidir' },
         { status: 400 }
       )
     }
 
-    // Okul kodu sadece rakam kontrolü
-    if (!/^\d+$/.test(schoolCode)) {
+    // Okul kodu validasyonu - boş değilse sadece rakam kontrolü
+    if (schoolCode && !/^\d+$/.test(schoolCode)) {
       return NextResponse.json(
         { error: 'Okul kodu sadece rakamlardan oluşmalıdır' },
         { status: 400 }
