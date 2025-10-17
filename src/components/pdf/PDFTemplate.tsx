@@ -57,7 +57,7 @@ export const exportToPDF = async (userInfo: UserInfo) => {
               <!-- Başlık -->
               <div style="flex: 1; margin: 0 16px;">
 
-                <h1 style="font-size: 16px; font-weight: 600; margin: 0 0 4px 0; letter-spacing: 0px;">MALTEPE FEN LİSESİ</h1>
+                
                 <h2 style="font-size: 16px; font-weight: 600; margin: 0 0 4px 0; letter-spacing: 0px;">2025 TUBİTAK 4006-B</h2>
                 <h2 style="font-size: 16px; font-weight: 600; margin: 0 0 4px 0; letter-spacing: 0px;">ALT PROJE BAŞVURU FORMU</h2>
                 
