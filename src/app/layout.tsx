@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MFL TYS",
-  description: "Maltepe Fen Lisesi TYS",
+  title: "TYS",
+  description: "TUBİTAK 4006 Proje Yönetim Sistemi",
 };
 
 export default function RootLayout({
